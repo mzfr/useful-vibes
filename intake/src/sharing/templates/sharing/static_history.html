@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#0d0f12">
+  <title>{{ label }}</title>
+  <link rel="stylesheet" href="/history.css">
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+  <main class="shell">
+    <nav class="share-nav" aria-label="Shared pages"><a href="/" aria-current="page">History</a><a href="/watchlist/">Watchlist</a></nav>
+    <section class="overview">
+      <div>
+        <p class="eyebrow">{{ label }}</p>
+        <h1>History</h1>
+        <p class="range">{{ range_label }}</p>
+        <p class="last-synced">{% if latest %}History through {{ latest|date:"j M Y, H:i" }}{% else %}No history yet{% endif %}</p>
+      </div>
+      <dl class="metrics">
+        <div><dt>Completions</dt><dd>{{ entry_count }}</dd><small>last 30 days</small></div>
+        <div><dt>Runtime</dt><dd>{{ runtime_label }}</dd><small>last 30 days</small></div>
+        <div><dt>Movies</dt><dd>{{ movie_count }}</dd><small>watched</small></div>
+        <div><dt>Shows</dt><dd>{{ show_count }}</dd><small>{{ episode_count }} episodes</small></div>
+      </dl>
+    </section>
+    <div class="calendar-scroll">
+      <div class="weekday-head" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+      <section class="history-grid" aria-label="Expanded 30-day history">
+        {% for day in days %}
+          <article class="history-day{% if day.is_today %} today{% endif %}{% if not day.in_window %} outside-window{% endif %}">
+            <header class="day-head">
+              <time datetime="{{ day.date|date:'Y-m-d' }}">{{ day.date|date:"D" }} <strong>{{ day.date|date:"j M" }}</strong></time>
+              {% if day.is_today %}<small>Today</small>{% endif %}
+            </header>
+            {% if day.entry_count %}
+              <p class="day-count">{{ day.entry_count }} completion{{ day.entry_count|pluralize }}</p>
+              <div class="history-entries">
+                {% for card in day.watches %}
+                  {% if card.tmdb_url %}<a class="history-card" href="{{ card.tmdb_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ card.title }} on TMDB (opens in a new tab)">{% else %}<div class="history-card">{% endif %}
+                    <div class="history-poster">
+                      {% if card.poster %}<img src="{{ card.poster }}" alt="" loading="lazy" width="56" height="84">{% else %}<span>{{ card.title|slice:":1" }}</span>{% endif %}
+                    </div>
+                    <div class="card-copy">
+                      <h2>{{ card.title }}</h2>
+                      {% if card.episode_code %}<p class="episode-code">{{ card.episode_code }}</p>{% endif %}
+                      {% if card.completion_count > 1 %}<p class="card-count">{{ card.completion_count }} completions{% if card.repeat_count %} · {{ card.repeat_count }} repeat{{ card.repeat_count|pluralize }}{% endif %}</p>{% endif %}
+                      <p class="card-meta"><span>{{ card.media_label }}</span><time>{{ card.time }}</time></p>
+                    </div>
+                  {% if card.tmdb_url %}</a>{% else %}</div>{% endif %}
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="empty-day">{% if day.in_window %}No activity{% else %}Outside shared window{% endif %}</p>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </section>
+    </div>
+    <footer class="footer"><span>Rolling 30 days</span><span>All days expanded · read-only</span></footer>
+  </main>
+</body>
+</html>

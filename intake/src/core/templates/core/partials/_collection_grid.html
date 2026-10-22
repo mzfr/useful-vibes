@@ -1,0 +1,44 @@
+{% comment %}Poster grid shared by built-in collections. Watchlist cards can be removed; discontinued shows can be restored to Up Next.{% endcomment %}
+{% if cards %}
+  <div class="k-shelf px-7 pt-[18px] pb-6">
+    {% for card in cards %}
+      <article>
+        <div class="relative">
+          <a href="{{ card.url }}">
+            <div class="k-poster-lg">
+              {% if card.image %}
+                <img src="{{ card.image }}" alt="">
+              {% else %}
+                <div class="k-poster-ph size-full"></div>
+              {% endif %}
+            </div>
+          </a>
+          {% if restorable %}
+            <button type="button" title="Move back to Up Next" aria-label="Move {{ card.title }} back to Up Next"
+                    hx-post="{% url 'core:restore_discontinued' card.item_id %}"
+                    hx-target="#discontinued-content" hx-swap="outerHTML"
+                    class="absolute right-1.5 top-1.5 z-10 grid size-7 cursor-pointer place-items-center
+                           rounded-full bg-bg/90 font-mono text-[14px] leading-none text-muted
+                           hover:text-ink">↩</button>
+          {% elif removable %}
+            <button type="button" title="Remove from watchlist"
+                    hx-post="{% url 'tracking:watchlist_remove' card.item_id %}"
+                    hx-target="closest article" hx-swap="outerHTML"
+                    hx-confirm="Remove “{{ card.title|escapejs }}” from the watchlist?"
+                    class="absolute right-1.5 top-1.5 z-10 grid size-6 cursor-pointer place-items-center
+                           rounded-full bg-bg/90 font-mono text-[12px] leading-none text-muted
+                           hover:text-ink">✕</button>
+          {% endif %}
+        </div>
+        <a href="{{ card.url }}">
+          <p class="mt-2 truncate font-sans text-[13px] font-semibold text-ink" title="{{ card.title }}">{{ card.title }}</p>
+          <p class="mt-[3px] font-mono text-[10.5px] font-medium text-dim capitalize">
+            {% if card.subtitle %}{{ card.subtitle }} · {% endif %}{{ card.media_type }}{% if card.year %} · {{ card.year }}{% endif %}
+          </p>
+        </a>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="px-7 pt-[18px] pb-6 font-sans text-[13px] text-dim">{{ empty_text }}</p>
+{% endif %}

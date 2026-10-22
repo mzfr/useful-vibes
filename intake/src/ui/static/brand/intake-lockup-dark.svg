@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="216" height="64" viewBox="0 0 216 64" fill="none">
+  <rect width="64" height="64" rx="15" fill="#c9954a"></rect>
+  <path d="M32 12a20 20 0 1 0 0 40 20 20 0 0 0 17.3-10L32 32Z" fill="#141416"></path>
+  <path d="M49.3 22A20 20 0 0 0 32 12v20Z" fill="#141416" opacity=".38"></path>
+  <circle cx="56" cy="17" r="5" fill="#efece5"></circle>
+  <text x="80" y="43" font-family="Space Grotesk, ui-sans-serif, system-ui, sans-serif" font-size="34" font-weight="700" letter-spacing="-1.2" fill="#f0ede6">intake</text>
+</svg>

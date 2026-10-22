@@ -1,0 +1,43 @@
+[project]
+name = "intake"
+version = "0.1.0"
+description = "Self-hosted single-user tracker for movies, TV shows, and books."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.1,<5.2",
+    "django-simple-history>=3.7",
+    "django-ninja>=1.3",
+    "httpx>=0.27",
+    "gunicorn>=23.0",
+    "whitenoise>=6.7",
+    "cryptography>=44",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "pytest-playwright>=0.5",
+    "ruff>=0.6",
+    "respx>=0.21",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "B", "UP", "DJ"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.dev"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+pythonpath = ["src"]
+testpaths = ["tests"]
+norecursedirs = ["_archive", ".venv", "node_modules", "data", "staticfiles"]
+markers = [
+    "e2e: end-to-end browser tests (requires `uv run playwright install chromium`)",
+]
+addopts = "-m 'not e2e'"

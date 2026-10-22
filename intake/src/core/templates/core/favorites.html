@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Favorites · {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+  <div class="flex items-end justify-between border-b border-line px-7 pb-3 pt-[26px]">
+    <div>
+      <h1>Favorites</h1>
+      <p class="mt-[7px] font-sans text-[13px] text-dim">
+        {{ cards|length }} favorite{{ cards|length|pluralize }}
+      </p>
+    </div>
+    <nav class="flex gap-1.5">
+      {% for value, label in filters %}
+        <a href="?type={{ value }}"
+           class="rounded-md border px-3 py-1.5 font-sans text-[12px] font-medium no-underline
+                  {% if value == media_type %}border-ink text-ink{% else %}border-line2 text-dim hover:text-ink{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+
+  {% include "core/partials/_collection_grid.html" with empty_text="No favorites yet. Hit ☆ on a movie, show, or episode." %}
+{% endblock %}

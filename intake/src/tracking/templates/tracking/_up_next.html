@@ -1,0 +1,103 @@
+{% if not show_rows and not movie_rows %}
+  <p class="col-span-full py-10 text-center font-sans text-[14px] text-dim">
+    Nothing waiting. Enjoy the silence.
+  </p>
+{% endif %}
+
+{% for r in show_rows %}
+  <article id="up-next-show-{{ r.show_item.pk }}" class="k-card relative isolate">
+    <a href="{{ r.url }}" aria-label="{{ r.aria_label }}"
+       class="absolute inset-0 z-0 rounded-[10px]"></a>
+
+    <a href="{{ r.url }}">
+      {% if r.show_item.image %}
+        <img src="{{ r.show_item.image }}" alt="" width="46" height="68" loading="lazy" class="k-poster">
+      {% else %}
+        <div class="k-poster k-poster-ph" style="background-color: #3f7d6b"></div>
+      {% endif %}
+    </a>
+
+    <div class="min-w-0 flex-1">
+      <div class="flex items-baseline gap-2">
+        <a href="{{ r.url }}" class="k-title truncate">{{ r.show_item.title }}</a>
+        {% if r.next_episode %}
+          <span class="k-code shrink-0">
+            S{{ r.next_episode.season_number|stringformat:"02d" }}E{{ r.next_episode.episode_number|stringformat:"02d" }}
+          </span>
+        {% elif r.target_season_number %}
+          <span class="k-code shrink-0">S{{ r.target_season_number|stringformat:"02d" }}E01</span>
+        {% endif %}
+      </div>
+
+      {% if r.next_episode %}
+        <p class="k-sub truncate">
+          {{ r.next_episode.title|default:'(untitled)' }}
+          {% if r.unwatched_count > 1 %}
+            <span class="text-faint">+ {{ r.unwatched_count|add:"-1" }} more</span>
+          {% endif %}
+        </p>
+      {% elif r.target_season_number %}
+        <p class="k-sub truncate">Season {{ r.target_season_number }} · Episode 1</p>
+      {% endif %}
+
+      {% if r.next_episode %}
+        <div class="mt-2 flex items-center gap-2.5">
+          <div class="k-bar">
+            <span style="width: {% widthratio r.unwatched_count 100 100 %}%"></span>
+          </div>
+          <span class="k-meta shrink-0">{{ r.unwatched_count }} left</span>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if r.next_episode %}
+      {% url 'tracking:up_next_discontinue' r.next_episode.pk as discontinue_url %}
+    {% else %}
+      {% url 'tracking:up_next_discontinue' r.show_item.pk as discontinue_url %}
+    {% endif %}
+    <button type="button"
+            title="Discontinue {{ r.show_item.title }}"
+            aria-label="Discontinue {{ r.show_item.title }}"
+            hx-post="{{ discontinue_url }}"
+            hx-target="#up-next-grid" hx-swap="innerHTML"
+            class="k-btn-ghost relative z-10 shrink-0 cursor-pointer">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 3l18 18"></path>
+        <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>
+        <path d="M9.9 4.2A10.5 10.5 0 0 1 12 4c5 0 8.5 4 9.5 6.3a4 4 0 0 1 0 3.4 12 12 0 0 1-2 3"></path>
+        <path d="M6.6 6.6A11.8 11.8 0 0 0 2.5 10.3a4 4 0 0 0 0 3.4C3.5 16 7 20 12 20a10.7 10.7 0 0 0 4.1-.8"></path>
+      </svg>
+    </button>
+
+    {% if r.automatic_download_url %}
+      <button type="button"
+              title="{% if r.automatic_download_enabled %}Disable{% else %}Enable{% endif %} automatic downloads for {{ r.show_item.title }}"
+              aria-label="{% if r.automatic_download_enabled %}Disable{% else %}Enable{% endif %} automatic downloads for {{ r.show_item.title }}"
+              aria-pressed="{{ r.automatic_download_enabled|yesno:'true,false' }}"
+              hx-post="{{ r.automatic_download_url }}"
+              hx-target="#up-next-grid" hx-swap="innerHTML"
+              class="k-auto-btn relative z-10 shrink-0 cursor-pointer{% if r.automatic_download_enabled %} is-active{% endif %}">
+        Auto ↓
+      </button>
+    {% endif %}
+
+    {% if r.next_episode %}
+      <button type="button"
+              title="Mark {{ r.next_episode.season_number|stringformat:'02d' }}E{{ r.next_episode.episode_number|stringformat:'02d' }} watched"
+              hx-post="{% url 'tracking:up_next_mark_watched' r.next_episode.pk %}"
+              hx-target="#up-next-grid" hx-swap="innerHTML"
+              class="k-btn relative z-10 shrink-0">✓</button>
+    {% elif r.target_season_number %}
+      <button type="button"
+              title="Mark season {{ r.target_season_number }} episode 1 watched"
+              hx-post="{% url 'tracking:up_next_new_season_watched' r.show_item.source r.show_item.media_id r.target_season_number %}"
+              hx-target="#up-next-grid" hx-swap="innerHTML"
+              class="k-btn relative z-10 shrink-0">✓</button>
+    {% endif %}
+  </article>
+{% endfor %}
+
+{% for r in movie_rows %}
+  {% include "tracking/partials/_up_next_item.html" with row=r subtitle="In progress" verb="watched" placeholder_class="bg-[#5b4a8a]" %}
+{% endfor %}

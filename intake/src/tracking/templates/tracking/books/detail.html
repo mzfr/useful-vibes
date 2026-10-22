@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }} · {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+<header class="border-b border-line px-[30px] pb-[18px] pt-[26px]">
+  <p class="font-mono text-[10px] text-dim"><a href="{% url 'tracking:books' %}">Books</a> › {% if tracking %}{{ tracking.get_status_display }}{% else %}Untracked{% endif %}</p>
+</header>
+
+<div class="grid gap-10 px-[30px] py-8 lg:grid-cols-[minmax(0,1fr)_280px]">
+  <main class="grid items-start gap-8 sm:grid-cols-[180px_minmax(0,1fr)]">
+    <div>
+      {% if book.cover_url %}
+        <img src="{{ book.cover_url }}" alt="" class="k-cover aspect-[2/3] w-full object-cover">
+      {% else %}
+        <div class="k-cover k-poster-ph aspect-[2/3] w-full bg-track"></div>
+      {% endif %}
+    </div>
+
+    <div class="min-w-0">
+      <p class="font-mono text-[9px] uppercase tracking-[0.16em] text-book">Open Library · {{ book.olid }}</p>
+      <p class="mt-5 font-mono text-[9px] uppercase tracking-[0.14em] text-faint">
+        Book{% if book.year %} · {{ book.year }}{% endif %}{% if book.pages %} · {{ book.pages }} pages{% endif %}{% if book.genre %} · {{ book.genre|upper }}{% endif %}
+      </p>
+      <h1 class="mt-3 text-[34px] leading-[1.08]">{{ book.title }}</h1>
+      <p class="mt-3 text-[15px] text-muted">{{ book.author|default:"Unknown author" }}</p>
+      {% if book.description %}<p class="mt-6 max-w-2xl text-[13px] leading-6 text-muted">{{ book.description }}</p>{% endif %}
+
+      <section class="k-section mt-8">
+        <div class="flex items-baseline justify-between gap-4">
+          <h2 class="text-[17px]">Progress</h2>
+          <span class="font-mono text-[10px] text-dim">{{ pace_label }} · {{ percent }}%</span>
+        </div>
+        <div class="mt-4 h-2 overflow-hidden rounded-full bg-track"><span class="block h-full bg-book" style="width: {{ percent }}%"></span></div>
+        <form method="post" action="{% url 'tracking:book_progress' book.item.pk %}"
+              class="k-progress-form mt-4"
+              x-data="{ unit: 'pages', value: {{ tracking.progress|default:0 }} }">
+          {% csrf_token %}<input type="hidden" name="next" value="{% url 'tracking:book_detail' book.olid %}">
+          <fieldset class="k-unit-switch">
+            <legend class="sr-only">Progress unit</legend>
+            <label :class="unit === 'pages' ? 'is-active' : ''">
+              <input type="radio" name="progress_unit" value="pages" x-model="unit" @change="value = {{ tracking.progress|default:0 }}"> Pages
+            </label>
+            <label :class="unit === 'percent' ? 'is-active' : ''" {% if not book.pages %}title="Page count unavailable"{% endif %}>
+              <input type="radio" name="progress_unit" value="percent" x-model="unit" @change="value = {{ percent }}" {% if not book.pages %}disabled{% endif %}> Percent
+            </label>
+          </fieldset>
+          <div class="k-progress-entry">
+            <label class="k-progress-field">
+              <span class="k-import-label" x-text="unit === 'pages' ? 'Current page' : 'Progress percentage'">Current page</span>
+              <span class="k-progress-input-wrap">
+                <input type="number" name="progress" min="0"
+                       :max="unit === 'percent' ? 100 : {% if book.pages %}{{ book.pages }}{% else %}null{% endif %}"
+                       x-model.number="value" required>
+                <span class="k-progress-suffix" x-text="unit === 'percent' ? '%' : 'pages'">pages</span>
+              </span>
+            </label>
+            <p class="k-progress-total" x-show="unit === 'pages'">of <strong>{{ book.pages|default:"unknown" }}</strong> pages</p>
+            <p class="k-progress-total" x-show="unit === 'percent'" x-cloak>≈ <strong x-text="Math.round((value / 100) * {{ book.pages|default:0 }})">0</strong> pages</p>
+            <button class="k-primary-action" type="submit">Save progress</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="status" class="k-section mt-8">
+        <h2 class="text-[17px]">Status</h2>
+        <div class="mt-4 flex flex-wrap gap-2">
+          {% for value, label in status_choices %}
+            <form method="post" action="{% url 'tracking:book_status' book.item.pk %}">
+              {% csrf_token %}<input type="hidden" name="status" value="{{ value }}"><input type="hidden" name="next" value="{% url 'tracking:book_detail' book.olid %}">
+              <button type="submit" class="k-chip {% if tracking.status == value %}is-active{% endif %}">{{ label }}</button>
+            </form>
+          {% endfor %}
+        </div>
+        <p class="mt-3 text-[10.5px] text-dim">Starting a book records today automatically. Use Dates to correct imported or older entries.</p>
+      </section>
+
+      <section id="rating" class="k-section mt-8">
+        <div class="flex items-baseline justify-between gap-4">
+          <h2 class="text-[17px]">Your rating</h2>
+          <span class="text-[11px] text-dim">{% if tracking.score %}Rated {{ tracking.score }}{% else %}Rate it when you finish{% endif %}</span>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-1.5">
+          {% for n in score_range %}
+            <form method="post" action="{% url 'tracking:book_rate' book.item.pk %}">
+              {% csrf_token %}<input type="hidden" name="score" value="{{ n }}"><input type="hidden" name="next" value="{% url 'tracking:book_detail' book.olid %}#rating">
+              <button type="submit" class="grid size-8 place-items-center rounded-md border text-[11px] font-semibold {% if tracking.score == n %}border-book bg-book text-white{% else %}border-line2 text-muted{% endif %}">{{ n }}</button>
+            </form>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <aside class="space-y-5">
+    <section class="k-import-panel">
+      <p class="k-import-label">Reading log</p>
+      <div class="mt-4 divide-y divide-line">
+        {% for s in sessions %}
+          <div class="flex items-center justify-between py-2.5 text-[11px]"><span class="text-muted">{{ s.date_label }}</span><span class="font-mono text-dim">p. {{ s.from_page }} → {{ s.to_page }}</span></div>
+        {% empty %}<p class="py-4 text-[11px] text-dim">No sessions logged.</p>{% endfor %}
+      </div>
+    </section>
+
+    <section class="k-import-panel">
+      <p class="k-import-label">Dates</p>
+      <form method="post" action="{% url 'tracking:book_dates' book.item.pk %}" class="mt-4 space-y-3">
+        {% csrf_token %}<input type="hidden" name="next" value="{% url 'tracking:book_detail' book.olid %}">
+        {% include "partials/_date_field.html" with label="Started" name="start_date" id="book-start-date" value=tracking.start_date %}
+        {% include "partials/_date_field.html" with label="Finished (optional)" name="end_date" id="book-finish-date" value=tracking.end_date %}
+        <button type="submit" class="k-btn-ghost !h-auto !w-full !rounded-md py-2 text-[11px]">Save dates</button>
+      </form>
+      <p class="k-import-note">A finish date is optional while the book is still being read.</p>
+    </section>
+  </aside>
+</div>
+{% endblock %}

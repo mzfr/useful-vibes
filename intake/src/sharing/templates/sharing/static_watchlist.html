@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#0d0f12">
+  <title>Watchlist{% if label %} · {{ label }}{% endif %}</title>
+  <link rel="stylesheet" href="/history.css">
+</head>
+<body>
+  <main class="shell">
+    <nav class="share-nav" aria-label="Shared pages"><a href="/">History</a><a href="/watchlist/" aria-current="page">Watchlist</a></nav>
+    <header class="watchlist-head">
+      <div><h1>Watchlist</h1><p>{{ cards|length }} thing{{ cards|length|pluralize }} to get to</p></div>
+      <nav class="watchlist-filters" aria-label="Media type">
+        {% for value, label in filters %}<a href="/watchlist/?type={{ value }}"{% if value == media_type %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+      </nav>
+    </header>
+    {% if cards %}
+      <section class="watchlist-shelf" aria-label="Watchlist titles">
+        {% for card in cards %}
+          <article>
+            {% if card.tmdb_url %}<a href="{{ card.tmdb_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ card.title }} on TMDB (opens in a new tab)">{% else %}<div>{% endif %}
+              <div class="watchlist-poster">{% if card.poster %}<img src="{{ card.poster }}" alt="" loading="lazy" width="300" height="450">{% else %}<span>{{ card.title|slice:":1" }}</span>{% endif %}</div>
+              <h2 title="{{ card.title }}">{{ card.title }}</h2>
+              <p>{{ card.media_type }}{% if card.year %} · {{ card.year }}{% endif %}</p>
+            {% if card.tmdb_url %}</a>{% else %}</div>{% endif %}
+          </article>
+        {% endfor %}
+      </section>
+    {% else %}<p class="watchlist-empty">Nothing on this watchlist.</p>{% endif %}
+    <footer class="footer"><span>Watchlist snapshot</span><span>Read-only · titles open on TMDB</span></footer>
+  </main>
+</body>
+</html>

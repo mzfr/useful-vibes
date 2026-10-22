@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ episode.code }} {{ episode.title }} · {{ show.title }} · {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+  <div class="border-b border-line px-6 py-3.5 sm:px-[30px]">
+    <a href="{% url 'tracking:details' show.media_id %}"
+       class="text-[12.5px] font-medium text-dim hover:text-ink">{{ show.title }} › Season {{ season_item.season_number }}</a>
+  </div>
+
+  {% include "tracking/partials/_episode_detail_body.html" %}
+  {% include "sources/_modal.html" %}
+{% endblock %}

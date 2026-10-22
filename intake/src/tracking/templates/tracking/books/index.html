@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Books · {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+<header class="border-b border-line px-[30px] pb-[18px] pt-[26px]">
+  <div>
+    <p class="mb-2 font-mono text-[9px] uppercase tracking-[0.18em] text-book">Library</p>
+    <h1>Books</h1>
+    <p class="mt-[7px] text-[13px] text-dim">{{ total_count }} tracked · {{ reading_count }} on the go</p>
+  </div>
+
+  <div class="relative mt-5 max-w-2xl" x-data @click.outside="$refs.results.innerHTML = ''">
+    <input type="search" name="q" autocomplete="off" placeholder="Search Open Library to add a book…"
+           class="w-full !bg-surface"
+           hx-get="{% url 'tracking:book_search' %}" hx-trigger="keyup changed delay:350ms, search"
+           hx-target="#book-search-results">
+    <div id="book-search-results" x-ref="results"
+         class="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-[10px] border border-line2 bg-surface shadow-[0_12px_30px_rgba(0,0,0,.14)] empty:hidden"></div>
+  </div>
+</header>
+
+<div class="flex flex-wrap items-center justify-between gap-4 px-[30px] py-5"
+     x-data="{ selected: '{{ selected_filter }}' }">
+  <nav class="flex flex-wrap gap-2" aria-label="Book status filters">
+    {% for f in filters %}
+      <a href="?status={{ f.value }}&sort={{ selected_sort }}" @click="selected = '{{ f.value }}'"
+         hx-get="?status={{ f.value }}&sort={{ selected_sort }}" hx-target="#books-table" hx-push-url="true"
+         class="k-chip" :class="selected === '{{ f.value }}' ? 'is-active' : ''">
+        {{ f.label }} <span class="ml-1 font-mono text-[10px] opacity-70">{{ f.count }}</span>
+      </a>
+    {% endfor %}
+  </nav>
+
+  <form method="get" class="flex items-center gap-2">
+    <input type="hidden" name="status" :value="selected" value="{{ selected_filter }}">
+    <label for="book-sort" class="font-mono text-[9px] uppercase tracking-[0.13em] text-faint">Sort</label>
+    <select id="book-sort" name="sort" class="!bg-surface !py-2 text-[12px]"
+            hx-get="{% url 'tracking:books' %}" hx-trigger="change" hx-target="#books-table"
+            hx-include="closest form" hx-push-url="true">
+      {% for value, label in sort_options %}
+        <option value="{{ value }}" {% if value == selected_sort %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+
+{% include "tracking/books/_books_table.html" %}
+{% endblock %}

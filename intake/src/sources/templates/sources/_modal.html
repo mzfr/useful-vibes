@@ -1,0 +1,5 @@
+{% comment %} Modal host, included once per page. The Sources button swaps the panel in as innerHTML and unhides this; emptying it closes. {% endcomment %}
+<div id="sources-modal"
+     @keydown.escape.window="this.classList.add('hidden'); this.classList.remove('grid'); this.innerHTML = ''"
+     onclick="if (event.target === this) { this.classList.add('hidden'); this.classList.remove('grid'); this.innerHTML = ''; }"
+     class="fixed inset-0 z-40 hidden place-items-center bg-black/60 p-4"></div>

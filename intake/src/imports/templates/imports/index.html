@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Settings · {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+<div class="k-import-page">
+  <header class="k-import-header !mb-5">
+    <p class="k-import-eyebrow">Configuration</p>
+    <h1 class="k-import-title">Settings</h1>
+    <p class="k-import-intro">Connections and access first. Occasional data-transfer tools stay collapsed below.</p>
+  </header>
+
+  <main class="grid gap-4">
+    <section class="k-import-panel">
+      <div class="k-import-panel-head">
+        <div>
+          <p class="k-import-label">Sources &amp; download client</p>
+          <h2 class="k-import-panel-title">Playback connections</h2>
+        </div>
+        <span class="k-import-refresh">Server-side</span>
+      </div>
+      <form method="post" action="{% url 'imports:save_sources_settings' %}" class="mt-4 grid gap-3">
+        {% csrf_token %}
+        <div>
+          <label for="source-addon-url" class="k-import-label">Addon URL</label>
+          <input id="source-addon-url" name="source_addon_url" type="url" autocomplete="off"
+                 value="{{ source_addon_url }}" placeholder="{{ default_addon_url }}"
+                 class="mt-2 w-full !bg-bg font-mono !text-[12px]" style="color-scheme: inherit">
+        </div>
+        <div class="grid gap-3 md:grid-cols-[minmax(0,1.4fr)_7rem_minmax(0,1fr)_minmax(0,1fr)]">
+          <div>
+            <label for="qbit-host" class="k-import-label">Client host</label>
+            <input id="qbit-host" name="qbittorrent_host" type="text" autocomplete="off"
+                   value="{{ qbit.host }}" placeholder="qbittorrent or 192.168.1.50"
+                   class="mt-2 w-full !bg-bg">
+          </div>
+          <div>
+            <label for="qbit-port" class="k-import-label">Port</label>
+            <input id="qbit-port" name="qbittorrent_port" type="text" inputmode="numeric" autocomplete="off"
+                   value="{% if qbit.port %}{{ qbit.port }}{% endif %}" placeholder="8080"
+                   class="mt-2 w-full !bg-bg">
+          </div>
+          <div>
+            <label for="qbit-user" class="k-import-label">Username</label>
+            <input id="qbit-user" name="qbittorrent_username" type="text" autocomplete="off"
+                   value="{{ qbit.username }}" placeholder="admin" class="mt-2 w-full !bg-bg">
+          </div>
+          <div>
+            <label for="qbit-pass" class="k-import-label">Password</label>
+            <input id="qbit-pass" name="qbittorrent_password" type="password" autocomplete="new-password"
+                   placeholder="{% if qbit.password_set %}••••••••{% else %}not set{% endif %}"
+                   class="mt-2 w-full !bg-bg">
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <p class="k-import-note !m-0">Leave the addon blank for {{ default_addon_url }}. Container clients use their service name, not localhost.</p>
+          <button type="submit" class="k-primary-action shrink-0">Save connections</button>
+        </div>
+      </form>
+    </section>
+
+    <div class="grid gap-4 lg:grid-cols-3">
+      <section class="k-import-panel">
+        <div class="k-import-status">
+          <p class="k-import-label">TMDB API key</p>
+          <span class="k-import-status-dot {% if tmdb_key_valid %}is-ok{% endif %}"></span>
+        </div>
+        <p class="k-import-value">{{ tmdb_status|default:"not checked"|capfirst }}</p>
+        <form method="post" action="{% url 'imports:save_tmdb_key' %}" class="mt-3 flex items-end gap-2">
+          {% csrf_token %}
+          <div class="min-w-0 flex-1">
+            <label for="tmdb-api-key" class="k-import-label">API key</label>
+            <input id="tmdb-api-key" name="tmdb_api_key" type="password" autocomplete="off"
+                   class="mt-2 w-full !bg-bg" placeholder="Paste TMDB v3 key" required>
+          </div>
+          <button type="submit" class="k-primary-action shrink-0">Save</button>
+        </form>
+      </section>
+
+      <section class="k-import-panel">
+        <p class="k-import-label">History sharing</p>
+        <p class="k-import-value">Private recipient links</p>
+        <p class="k-import-note">Manage the public domain, sync interval, expiry, and revocation from one compact page.</p>
+        <a href="{% url 'sharing:manage' %}" class="k-primary-action mt-3 block text-center">Manage history sharing</a>
+      </section>
+
+      <section class="k-import-panel">
+        <p class="k-import-label">Your API token</p>
+        {% if api_token %}
+          <div class="k-import-token mt-3">
+            <code>intake_••••••••••••••••</code>
+            <p class="k-import-token-meta">Created {{ api_token.created_at|date:"j M" }} · last used {{ api_token.last_used_at|date:"j M, H:i"|default:"never" }}</p>
+          </div>
+          <p class="k-import-note">The full token is hidden. Regenerating it breaks existing scripts.</p>
+        {% else %}
+          <div class="k-import-token mt-3"><span class="k-import-note">No API token generated.</span></div>
+        {% endif %}
+      </section>
+    </div>
+
+    <details class="k-import-panel group">
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-4">
+        <div>
+          <p class="k-import-label">Occasional tools</p>
+          <h2 class="k-import-panel-title mt-1">Imports, exports, and recent jobs</h2>
+        </div>
+        <span class="font-mono text-[11px] text-dim group-open:hidden">Show ↓</span>
+        <span class="hidden font-mono text-[11px] text-dim group-open:inline">Hide ↑</span>
+      </summary>
+
+      <div class="mt-4 grid gap-4 border-t border-line pt-4 xl:grid-cols-2">
+        <article class="k-import-source">
+          <div class="k-import-source-head">
+            <div><p class="k-import-label">01 / Archive</p><h2 class="k-import-heading">Trakt export</h2></div>
+            <span class="k-import-badge {% if not tmdb_key_valid %}is-warning{% endif %}">{% if tmdb_key_valid %}TMDB key set{% else %}TMDB key missing{% endif %}</span>
+          </div>
+          <p class="k-import-copy">Import history, ratings, watchlist, lists, and hidden shows from the official Trakt data export ZIP.</p>
+          {% url 'imports:trakt_export' as trakt_url %}
+          {% include "partials/_dropzone.html" with kind="zip" name="archive" accept=".zip" action=trakt_url label="Drop trakt-export.zip here" hint="up to 200 MB" primary=True button="Import" %}
+        </article>
+
+        <article class="k-import-source">
+          <div class="k-import-source-head">
+            <div><p class="k-import-label">02 / Library</p><h2 class="k-import-heading">Books CSV</h2></div>
+          </div>
+          <p class="k-import-copy">Import a Goodreads or Storygraph export. Reliable ISBN matches are preferred; uncertain rows stay available for review.</p>
+          {% url 'imports:upload_csv_books' as books_url %}
+          {% include "partials/_dropzone.html" with kind="csv" name="csv" accept=".csv" action=books_url label="Drop your books CSV here" hint="Goodreads or Storygraph CSV" button="Upload" %}
+        </article>
+
+        <section class="k-import-panel xl:col-span-2">
+          <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
+            <div>
+              <div class="k-import-panel-head">
+                <div><p class="k-import-label">Activity</p><h2 class="k-import-panel-title">Recent jobs</h2></div>
+                <span class="k-import-refresh">Refreshes on its own</span>
+              </div>
+              {% include "partials/_import_jobs.html" %}
+            </div>
+            <div class="border-t border-line pt-4 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+              <p class="k-import-label">Export your data</p>
+              <nav class="mt-3">
+                <a href="{% url 'imports:export_movies_shows' %}" class="k-import-export"><span>Shows + movies CSV</span><span>↓</span></a>
+                <a href="{% url 'imports:export_books' %}" class="k-import-export"><span>Books CSV</span><span>↓</span></a>
+                <a href="{% url 'imports:export_json' %}" class="k-import-export"><span>Full JSON dump</span><span>↓</span></a>
+              </nav>
+            </div>
+          </div>
+        </section>
+      </div>
+    </details>
+  </main>
+</div>
+{% endblock %}

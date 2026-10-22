@@ -1,0 +1,34 @@
+<button type="button"
+        title="{% if watched %}Log another watch{% else %}Mark watched{% endif %}"
+        hx-post="{{ watch_url }}" hx-include="#{{ date_id }}"
+        hx-target="#{{ target_id }}" hx-swap="outerHTML"
+        class="rounded-lg px-5 py-2.5 text-[13.5px] font-semibold whitespace-nowrap cursor-pointer border-none
+               {% if watched %}bg-active text-ink hover:opacity-90{% else %}bg-btn text-btnfg hover:opacity-90{% endif %}">
+  {% if watched %}Watched again{% else %}Mark watched{% endif %}
+</button>
+
+{% if watched %}
+  <button type="button" title="Clear watched state"
+          hx-post="{{ unwatch_url }}" hx-target="#{{ target_id }}" hx-swap="outerHTML"
+          class="rounded-lg border border-line2 bg-transparent px-4 py-2.5 text-[13px] font-medium text-ink hover:border-ink cursor-pointer">Unwatch</button>
+{% endif %}
+
+<label class="flex flex-col gap-1 font-mono text-[10px] font-medium tracking-[0.1em] text-dim">
+  WATCHED ON (OPTIONAL)
+  <input type="date" id="{{ date_id }}" name="watched_on"
+         max="{% now 'Y-m-d' %}" class="w-auto rounded-[7px] !border-2 !border-accent bg-surface px-3 !py-2 font-mono text-[12px] text-ink">
+</label>
+
+<div class="ml-auto flex flex-col gap-1">
+  <span class="font-mono text-[10px] font-medium tracking-[0.1em] text-dim">
+    YOUR RATING{% if score %} · {{ score }}/10{% endif %}
+  </span>
+  <div class="flex flex-wrap gap-1">
+    {% for n in score_range %}
+      <button type="button" hx-post="{{ rate_url }}"
+              hx-vals='{"score": {{ n }} }' hx-target="#{{ target_id }}" hx-swap="outerHTML"
+              class="size-8 rounded-md border-none font-mono text-[12px] font-medium cursor-pointer
+                     {% if score == n %}bg-btn text-btnfg{% else %}bg-surface text-muted hover:text-ink{% endif %}">{{ n }}</button>
+    {% endfor %}
+  </div>
+</div>

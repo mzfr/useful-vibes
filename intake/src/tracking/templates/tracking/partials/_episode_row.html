@@ -1,0 +1,58 @@
+<div id="episode-{{ e.pk }}"
+     class="flex items-center gap-4 border-b border-line px-2.5 py-3">
+
+  <div class="w-[74px] shrink-0">
+    <span class="k-code">{{ e.code }}</span>
+  </div>
+
+  <div class="min-w-0 flex-1">
+    <a href="{% url 'tracking:episode_detail' show.media_id e.season_number e.episode_number %}"
+       class="block truncate text-[15px] font-medium {% if e.watched %}text-ink{% else %}text-muted{% endif %} hover:text-accent">{{ e.title|default:"(untitled)" }}</a>
+  </div>
+
+  <div class="w-[220px] shrink-0 font-mono text-[12px] text-dim">
+    {% if e.watched %}
+      Watched {{ e.watched_at_label }}{% if e.repeats %} · {{ e.repeats|add:1 }}× watched{% endif %}
+    {% elif e.aired %}Aired · unseen
+    {% elif e.air_date %}Airs {{ e.air_date|date:"j M" }}
+    {% else %}—{% endif %}
+  </div>
+
+  <div class="flex shrink-0 items-center gap-1.5">
+    <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+      <button type="button" @click="open = !open"
+              class="rounded-[5px] border border-line2 px-2 py-1.5 font-mono text-[12px] font-medium cursor-pointer
+                     {% if e.score %}text-ink{% else %}text-faint{% endif %} hover:border-ink">
+        {% if e.score %}{{ e.score }}{% else %}rate{% endif %}
+      </button>
+      <div x-show="open" x-transition.opacity.duration.120ms x-cloak
+           class="absolute right-0 top-full z-20 mt-1.5 flex gap-0.5 rounded-lg border border-line bg-surface p-1.5 shadow-lg">
+        {% for n in score_range %}
+          <button type="button"
+                  hx-post="{% url 'tracking:rate_episode' show.media_id e.season_number e.episode_number %}"
+                  hx-vals='{"score": {{ n }} }'
+                  hx-target="#episode-{{ e.pk }}" hx-swap="outerHTML"
+                  class="size-6 rounded font-mono text-[11px] text-muted hover:bg-active hover:text-ink cursor-pointer">{{ n }}</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if e.watched %}
+      <button type="button"
+              title="Clear watched state"
+              hx-post="{% url 'tracking:unwatch_episode' show.media_id e.season_number e.episode_number %}"
+              hx-target="#episode-{{ e.pk }}" hx-swap="outerHTML"
+              class="rounded-[7px] border border-line2 px-3 py-1.5 text-[12.5px] font-medium whitespace-nowrap text-ink hover:border-ink cursor-pointer bg-transparent">Unwatch</button>
+    {% endif %}
+
+    <button type="button"
+            title="{% if e.watched %}Log another watch{% else %}Mark watched{% endif %}"
+            hx-post="{% url 'tracking:toggle_episode' show.media_id e.season_number e.episode_number %}"
+            hx-include="#watched-on"
+            hx-target="#episode-{{ e.pk }}" hx-swap="outerHTML"
+            class="rounded-[7px] px-3 py-1.5 text-[12.5px] font-semibold whitespace-nowrap cursor-pointer border-none
+                   {% if e.watched %}bg-active text-ink hover:opacity-90{% else %}bg-btn text-btnfg hover:opacity-90{% endif %}">
+      {% if e.watched %}Watched again{% else %}Watched{% endif %}
+    </button>
+  </div>
+</div>

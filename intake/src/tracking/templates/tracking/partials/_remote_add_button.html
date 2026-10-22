@@ -1,0 +1,11 @@
+{% comment %}
+  "+ Watchlist" button for a TMDB search hit that has no local Item yet.
+  Posts the provider key; the view resolves it from TMDB before writing the
+  tracking row.
+{% endcomment %}
+<button type="button"
+        hx-post="{% url 'tracking:add_remote' hit.source hit.media_type hit.media_id %}"
+        hx-swap="outerHTML"
+        class="mt-1.5 w-full rounded-md border border-line2 px-2 py-1.5 font-sans text-[11.5px] font-medium text-muted hover:border-ink hover:text-ink cursor-pointer bg-transparent">
+  + Watchlist
+</button>

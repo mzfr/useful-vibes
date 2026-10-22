@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Watchlist · {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+  <div class="flex items-end justify-between border-b border-line px-7 pb-3 pt-[26px]">
+    <div>
+      <h1>Watchlist</h1>
+      <p class="mt-[7px] font-sans text-[13px] text-dim">
+        {{ cards|length }} thing{{ cards|length|pluralize }} you plan to get to
+      </p>
+    </div>
+    <nav class="flex gap-1.5">
+      {% for value, label in filters %}
+        <a href="?type={{ value }}"
+           class="rounded-md border px-3 py-1.5 font-sans text-[12px] font-medium no-underline
+                  {% if value == media_type %}border-ink text-ink{% else %}border-line2 text-dim hover:text-ink{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+
+  {% include "core/partials/_collection_grid.html" with removable=True empty_text="Nothing on your watchlist. Search for something on the home page and hit + Watchlist." %}
+{% endblock %}

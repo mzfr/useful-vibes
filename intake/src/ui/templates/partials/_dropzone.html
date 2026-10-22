@@ -1,0 +1,18 @@
+{# Drag-and-drop upload target. #}
+<form method="post" action="{{ action }}" enctype="multipart/form-data"
+      x-data="{ fileName: '' }">
+  {% csrf_token %}
+  <label class="k-dropzone-target">
+    <input class="sr-only" type="file" name="file" accept="{{ accept }}"
+           @change="fileName = $event.target.files[0]?.name || ''">
+    <span class="k-dropzone-icon">{{ kind|upper }}</span>
+    <strong class="k-dropzone-label" x-text="fileName || '{{ label|escapejs }}'">{{ label }}</strong>
+    <span class="k-dropzone-hint">or choose a file{% if hint %} · {{ hint }}{% endif %}</span>
+  </label>
+  <div class="k-dropzone-actions">
+    <span class="k-import-note !mt-0">
+      {% if hint2_url %}<a href="{{ hint2_url }}">{{ hint2 }}</a>{% endif %}
+    </span>
+    <button type="submit" class="k-primary-action">{{ button }}</button>
+  </div>
+</form>

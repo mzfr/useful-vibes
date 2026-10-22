@@ -1,0 +1,8 @@
+{% now "Y-m-d" as today %}
+<label class="k-date-field"{% if id %} for="{{ id }}"{% endif %}>
+  {% if label %}<span class="k-date-label">{{ label }}</span>{% endif %}
+  <input type="date" name="{{ name }}"{% if id %} id="{{ id }}"{% endif %}
+         value="{% if value_today %}{{ today }}{% elif value %}{{ value|date:'Y-m-d' }}{% endif %}"
+         {% if max_today %}max="{{ today }}"{% elif max %}max="{{ max }}"{% endif %}
+         class="k-date-input">
+</label>

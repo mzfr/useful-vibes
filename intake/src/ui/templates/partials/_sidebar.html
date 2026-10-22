@@ -1,0 +1,43 @@
+{% load static %}
+<aside class="k-rail">
+
+  <a href="{% url 'core:home' %}"
+     class="flex items-center gap-2 !px-[18px] !pb-5 font-sans text-[18px] font-bold tracking-[-0.03em] text-ink">
+    <img src="{% static 'brand/intake-mark.svg' %}" alt="" width="22" height="22"
+         class="h-[22px] w-[22px] rounded-[5px] dark:hidden">
+    <img src="{% static 'brand/intake-mark-light.svg' %}" alt="" width="22" height="22"
+         class="hidden h-[22px] w-[22px] rounded-[5px] dark:block">
+    <span>{{ APP_NAME }}</span>
+  </a>
+
+  <nav class="flex flex-col">
+    <a href="{% url 'core:watchlist' %}" class="{% if request.resolver_match.url_name == 'watchlist' %}is-active{% endif %}">Watchlist</a>
+    <a href="{% url 'core:discontinued' %}" class="{% if request.resolver_match.url_name == 'discontinued' %}is-active{% endif %}">Discontinued</a>
+    <a href="{% url 'core:favorites' %}" class="{% if request.resolver_match.url_name == 'favorites' %}is-active{% endif %}">Favorites</a>
+    <a href="{% url 'tracking:books' %}" class="{% if request.resolver_match.url_name == 'books' or request.resolver_match.url_name == 'book_detail' %}is-active{% endif %}">Books</a>
+    <a href="{% url 'core:history' %}"   class="{% if request.resolver_match.url_name == 'history' %}is-active{% endif %}">History</a>
+    <a href="{% url 'stats:index' %}"    class="{% if request.resolver_match.namespace == 'stats' %}is-active{% endif %}">Stats</a>
+    <a href="{% url 'imports:index' %}" class="{% if request.resolver_match.namespace == 'imports' %}is-active{% endif %}">Settings</a>
+  </nav>
+
+  <div class="mt-auto flex items-center justify-between gap-2.5 px-[18px] pt-4">
+    <div class="flex items-center gap-2.5">
+      <div class="size-7 rounded-full bg-accent"></div>
+      <span class="font-sans text-[12.5px] font-medium text-muted">{{ request.user.username|default:"guest" }}</span>
+    </div>
+    <button type="button"
+            id="theme-toggle"
+            class="k-btn-ghost !size-7 shrink-0 text-[14px]"
+            :title="theme === 'dark' ? 'Switch to light' : 'Switch to dark'"
+            @click="theme = theme === 'dark' ? 'light' : 'dark'"
+            x-text="theme === 'dark' ? '☀' : '☾'">☾</button>
+  </div>
+
+  <form method="post" action="{% url 'logout' %}" class="px-[18px] pt-3">
+    {% csrf_token %}
+    <button type="submit"
+            class="font-sans text-[12px] font-medium text-muted hover:text-ink cursor-pointer bg-transparent border-none p-0">
+      Logout
+    </button>
+  </form>
+</aside>

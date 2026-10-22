@@ -1,0 +1,11 @@
+{
+  "title": "The Lord of the Rings",
+  "key": "/works/OL27448W",
+  "description": {"value": "An epic high-fantasy novel."},
+  "covers": [14625765],
+  "subjects": ["Fantasy", "Adventure"],
+  "first_publish_date": "1954",
+  "authors": [
+    {"author": {"key": "/authors/OL26320A"}, "type": {"key": "/type/author_role"}}
+  ]
+}

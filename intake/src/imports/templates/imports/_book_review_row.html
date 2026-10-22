@@ -1,0 +1,33 @@
+<article class="k-review-row">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div class="min-w-0">
+      <p class="text-[14px] font-semibold text-ink">{{ review.title }}</p>
+      <p class="mt-1 text-[12px] text-muted">{{ review.author }}</p>
+      <p class="mt-2 font-mono text-[9px] uppercase tracking-[0.1em] text-faint">
+        {% if review.isbn %}ISBN/UID {{ review.isbn }} · {% endif %}{{ review.entry.reason }}
+      </p>
+    </div>
+    {% if review.entry.resolution %}
+      <span class="k-import-badge">{{ review.entry.resolution|capfirst }}</span>
+    {% endif %}
+  </div>
+
+  {% if not review.entry.resolution %}
+    <form class="mt-4 flex gap-2"
+          hx-get="{% url 'imports:review_book_search' job.pk review.index %}"
+          hx-target="#review-results-{{ review.index }}"
+          hx-swap="innerHTML">
+      <input type="search" name="q" value="{{ review.title }}"
+             class="min-w-0 flex-1 !bg-bg" aria-label="Search Open Library">
+      <button type="submit" class="k-btn-ghost !h-auto !w-auto !rounded-md px-3 py-2 text-[11px]">Search</button>
+    </form>
+    <div id="review-results-{{ review.index }}"></div>
+    <form method="post" action="{% url 'imports:review_book_skip' job.pk review.index %}" class="mt-3 text-right">
+      {% csrf_token %}<button type="submit" class="font-mono text-[9px] uppercase tracking-[0.1em] text-dim hover:text-ink">Skip this row</button>
+    </form>
+  {% elif review.entry.resolution == 'matched' %}
+    <p class="mt-3 text-[11px] text-muted">Added as Open Library work {{ review.entry.matched_olid }}.</p>
+  {% else %}
+    <p class="mt-3 text-[11px] text-muted">Original CSV data remains stored with this import job.</p>
+  {% endif %}
+</article>

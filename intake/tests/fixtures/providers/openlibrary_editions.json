@@ -1,0 +1,13 @@
+{
+  "entries": [
+    {
+      "key": "/books/OL26354864M",
+      "title": "The Lord of the Rings",
+      "number_of_pages": 1178,
+      "publish_date": "2005",
+      "isbn_13": ["9780618640157"],
+      "isbn_10": ["0618640150"],
+      "covers": [14625765]
+    }
+  ]
+}

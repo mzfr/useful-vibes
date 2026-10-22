@@ -1,0 +1,43 @@
+<tr id="book-row-{{ b.item.pk }}" class="group hover:bg-active/60">
+  <td class="min-w-[300px] px-4 py-3">
+    <a href="{% url 'tracking:book_detail' b.item.media_id %}" class="flex items-center gap-3">
+      {% if b.cover_url %}
+        <img src="{{ b.cover_url }}" alt="" width="34" height="50" loading="lazy" class="k-cover-sm h-[50px] w-[34px] object-cover">
+      {% else %}
+        <span class="k-cover-sm k-poster-ph h-[50px] w-[34px] bg-track"></span>
+      {% endif %}
+      <span class="min-w-0">
+        <span class="block truncate text-[13px] font-semibold text-ink">{{ b.title }}</span>
+        <span class="mt-1 block truncate text-[11px] text-muted">{{ b.author|default:"Unknown author" }}</span>
+      </span>
+    </a>
+  </td>
+  <td class="px-3 py-3">
+    <span class="k-status k-status--{{ b.status }}">{{ b.status_label }}</span>
+  </td>
+  <td class="whitespace-nowrap px-3 py-3 font-mono text-[11px] text-muted">
+    {% if b.progress %}{{ b.progress }} / {{ b.pages|default:"—" }}{% else %}—{% endif %}
+  </td>
+  <td class="px-3 py-3 font-mono text-[11px] text-muted">{{ b.score|default:"—" }}</td>
+  <td class="whitespace-nowrap px-3 py-3 font-mono text-[10px] text-dim">{{ b.date_label }}</td>
+  <td class="px-4 py-3">
+    <div class="flex items-center justify-end gap-2">
+      {% if b.status == 'reading' %}
+        <a href="{% url 'tracking:book_detail' b.item.media_id %}#status" class="k-btn-ghost !h-auto !w-auto !rounded-md px-2.5 py-1.5 text-[11px]">Finish</a>
+      {% elif b.status == 'to_read' %}
+        <form method="post" action="{% url 'tracking:book_status' b.item.pk %}" hx-post="{% url 'tracking:book_status' b.item.pk %}" hx-target="#books-table" hx-swap="outerHTML">
+          {% csrf_token %}<input type="hidden" name="status" value="in_progress"><input type="hidden" name="filter" value="{{ selected_filter }}"><input type="hidden" name="sort" value="{{ selected_sort }}">
+          <button class="k-btn-ghost !h-auto !w-auto !rounded-md px-2.5 py-1.5 text-[11px]" type="submit">Start reading</button>
+        </form>
+      {% elif b.status == 'read' and not b.score %}
+        <a href="{% url 'tracking:book_detail' b.item.media_id %}#rating" class="k-btn-ghost !h-auto !w-auto !rounded-md px-2.5 py-1.5 text-[11px]">Rate</a>
+      {% elif b.status == 'dnf' %}
+        <form method="post" action="{% url 'tracking:book_status' b.item.pk %}" hx-post="{% url 'tracking:book_status' b.item.pk %}" hx-target="#books-table" hx-swap="outerHTML">
+          {% csrf_token %}<input type="hidden" name="status" value="in_progress"><input type="hidden" name="filter" value="{{ selected_filter }}"><input type="hidden" name="sort" value="{{ selected_sort }}">
+          <button class="k-btn-ghost !h-auto !w-auto !rounded-md px-2.5 py-1.5 text-[11px]" type="submit">Resume</button>
+        </form>
+      {% endif %}
+      <a href="{% url 'tracking:book_detail' b.item.media_id %}" class="font-mono text-[10px] text-dim">Open book</a>
+    </div>
+  </td>
+</tr>

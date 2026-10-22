@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Sign in · {{ APP_NAME }}{% endblock %}
+
+{% block content_anon %}
+  <div class="flex min-h-screen items-center justify-center">
+    <div class="w-full max-w-sm rounded-[10px] bg-surface p-8">
+      <h1 class="font-sans text-[24px] font-bold tracking-[-0.03em]">{{ APP_NAME }}</h1>
+      <p class="font-sans text-[13px] text-muted mt-1 mb-6">{{ APP_TAGLINE }}</p>
+
+      <form method="post" class="space-y-3">
+        {% csrf_token %}
+        {% if form.errors %}
+          <p class="font-sans text-[13px] text-accent">Invalid username or password.</p>
+        {% endif %}
+
+        <label class="block">
+          <span class="font-sans text-[12px] font-medium text-dim">Username</span>
+          <input type="text" name="username" autofocus required class="mt-1 w-full">
+        </label>
+
+        <label class="block">
+          <span class="font-sans text-[12px] font-medium text-dim">Password</span>
+          <input type="password" name="password" required class="mt-1 w-full">
+        </label>
+
+        <button type="submit" class="k-btn w-full !rounded-[7px] !h-auto py-2.5 mt-2">Sign in</button>
+        <input type="hidden" name="next" value="{{ next }}">
+      </form>
+    </div>
+  </div>
+{% endblock %}

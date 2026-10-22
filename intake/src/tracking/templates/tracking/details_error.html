@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="bg-surface border border-line rounded-lg p-6">
+    <h1 class="text-xl font-semibold mb-2">Couldn't load this item</h1>
+    <p class="text-danger text-sm">{{ error }}</p>
+    <p class="text-muted text-sm mt-2">Try again later, or search for something else.</p>
+  </div>
+{% endblock %}

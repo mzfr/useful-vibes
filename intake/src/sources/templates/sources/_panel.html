@@ -1,0 +1,70 @@
+{% comment %} Sources panel, swapped into #sources-modal. Fetch: hx-get the panel URL targeting #sources-modal. Send: hx-post to sources:add(_episode) with a JSON payload of the picked row. {% endcomment %}
+<div id="sources-panel" class="rounded-[14px] border border-line bg-surface p-5">
+  <div class="mb-3 flex items-center justify-between gap-3">
+    <div>
+      <p class="k-import-label">Sources</p>
+      <p class="mt-1 text-[13px] text-muted">
+        {% if item.media_type == "episode" %}
+          {{ item.parent.parent.title }} — S{{ item.season_number|stringformat:"02d" }}E{{ item.episode_number|stringformat:"02d" }}
+        {% else %}
+          {{ item.title }}
+        {% endif %}
+      </p>
+    </div>
+    <button type="button" class="k-btn-ghost cursor-pointer" title="Close"
+            onclick="const m = document.getElementById('sources-modal');
+                     m.classList.add('hidden'); m.classList.remove('grid'); m.innerHTML = '';">×</button>
+  </div>
+
+  <form class="mb-3 flex flex-wrap items-end gap-2.5" hx-get="{{ panel_url }}" hx-target="#sources-panel" hx-swap="outerHTML" hx-trigger="submit">
+    <label class="flex flex-col gap-1">
+      <span class="k-import-label">Quality</span>
+      <select name="quality" onchange="this.form.requestSubmit()"
+              class="!bg-bg px-2.5 py-1.5 text-[12.5px]">
+        <option value="" {% if not quality %}selected{% endif %}>All</option>
+        {% for q in qualities %}
+          <option value="{{ q }}" {% if quality == q %}selected{% endif %}>{{ q }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <span class="pb-2 text-[11.5px] text-dim">Releases not matching “{{ item.title }}” are hidden.</span>
+  </form>
+
+  {% if not client_ready %}
+    <p class="mb-3 rounded-[9px] bg-bg px-3.5 py-2.5 text-[12px] text-muted">
+      No download client configured — set one in <a class="border-b border-line2" href="{% url 'imports:index' %}">Settings</a>.
+    </p>
+  {% endif %}
+
+  {% if error %}
+    <p class="rounded-[9px] bg-bg px-3.5 py-3 text-[12.5px] text-muted">{{ error }}</p>
+  {% elif not streams %}
+    <p class="rounded-[9px] bg-bg px-3.5 py-3 text-[12.5px] text-muted">Looking…</p>
+  {% else %}
+    <ul class="divide-y divide-line">
+      {% for s in streams %}
+        <li class="flex items-center gap-3 py-2.5">
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-[13px] text-ink" title="{{ s.title }}">{{ s.title }}</p>
+            <p class="mt-0.5 font-mono text-[10.5px] text-dim">
+              {{ s.quality|default:"—" }} ·
+              {{ s.size_display }} ·
+              {% if s.seeders is not None %}👤 {{ s.seeders }}{% else %}👤 ?{% endif %}
+            </p>
+          </div>
+          {% if sent_info_hash == s.info_hash %}
+            <span class="shrink-0 font-mono text-[10.5px] text-muted">sent ✓</span>
+          {% else %}
+            <button type="button"
+                    hx-post="{% if item.media_type == 'episode' %}{% url 'sources:add_episode' item.source item.media_type item.media_id item.season_number item.episode_number %}{% else %}{% url 'sources:add' item.source item.media_type item.media_id %}{% endif %}"
+                    hx-vals='{"payload": {"info_hash": "{{ s.info_hash }}", "title": "{{ s.title|escapejs }}" }}'
+                    hx-target="#sources-panel" hx-swap="outerHTML"
+                    class="shrink-0 cursor-pointer rounded-[7px] border border-line2 bg-transparent px-3 py-1.5 text-[12px] font-medium text-ink hover:border-ink">
+              Send
+            </button>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>

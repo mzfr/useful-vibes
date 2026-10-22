@@ -1,0 +1,27 @@
+<div id="import-jobs" class="divide-y divide-line"
+     hx-get="{% url 'imports:jobs' %}" hx-trigger="every 5s" hx-swap="outerHTML">
+  {% for job in jobs %}
+    <a href="{% url 'imports:job' job.pk %}"
+       class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 py-3.5 first:pt-0 last:pb-0">
+      <span class="min-w-0">
+        <span class="flex items-center gap-2">
+          <span class="truncate text-[13px] font-semibold text-ink">{{ job.get_kind_display }}</span>
+          <span class="size-1.5 rounded-full {% if job.state == 'done' %}bg-heat-3{% elif job.state == 'failed' %}bg-accent{% else %}animate-pulse bg-faint{% endif %}"></span>
+        </span>
+        <span class="mt-1 block font-mono text-[9px] uppercase tracking-[0.11em] text-faint">
+          #{{ job.pk }} · {{ job.created_at|date:"j M Y, H:i" }}
+          {% if job.pending_review_count %} · {{ job.pending_review_count }} need review{% endif %}
+        </span>
+      </span>
+      <span class="text-right">
+        <span class="block font-mono text-[9px] uppercase tracking-[0.11em] text-muted">{{ job.get_state_display }}</span>
+        {% if job.total %}<span class="mt-1 block text-[10.5px] text-dim">{{ job.processed }}/{{ job.total }}</span>{% endif %}
+      </span>
+    </a>
+  {% empty %}
+    <div class="py-8 text-center">
+      <p class="text-[13px] text-muted">No imports yet.</p>
+      <p class="mt-1 font-mono text-[9px] uppercase tracking-[0.13em] text-faint">Completed jobs appear here</p>
+    </div>
+  {% endfor %}
+</div>

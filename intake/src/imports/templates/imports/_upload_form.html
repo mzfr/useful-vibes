@@ -1,0 +1,8 @@
+<section class="bg-surface border border-line rounded-lg p-4 space-y-3">
+  <h2 class="text-sm font-semibold">{{ heading }}</h2>
+  <form method="post" action="{{ action }}" enctype="multipart/form-data" class="flex gap-2">
+    {% csrf_token %}
+    <input type="file" name="file" accept=".csv" required class="flex-1">
+    <button class="k-primary-action" type="submit">Upload</button>
+  </form>
+</section>

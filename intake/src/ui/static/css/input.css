@@ -1,0 +1,463 @@
+@import "tailwindcss";
+
+/* v4 auto-detects sources next to the CSS file; point it at the templates too. */
+@source "../../../**/*.html";
+@source "../../../**/*.py";
+@source "../js/**/*.js";
+
+/* Class-based dark mode: <html class="dark"> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---- Theme tokens ------------------------------------------------------
+   3a (warm/paper) is the default. 3b (cinema/dark) is the same layout with
+   these variables flipped — no template changes at all.                   */
+:root {
+  --app-bg:       #efece5;  /* page */
+  --app-rail:     #e7e2d6;  /* sidebar */
+  --app-surface:  #e7e2d6;  /* cards, inputs */
+  --app-line:     #dcd6c8;  /* hairlines */
+  --app-line-2:   #cfc8b8;  /* button borders */
+  --app-ink:      #141416;  /* primary text */
+  --app-muted:    #6f6a5e;  /* secondary text */
+  --app-dim:      #766f60;  /* tertiary text, mono meta — >=3.8:1 on bg/surface */
+  --app-faint:    #7d7566;  /* labels — >=3.5:1 on bg/surface, was near-invisible */
+  --app-accent:   #b4331f;  /* episode codes, avatar */
+  --app-track:    #d5cebd;  /* progress track */
+  --app-prog:     #141416;  /* progress fill */
+  --app-btn:      #141416;  /* solid button bg */
+  --app-btn-fg:   #efece5;  /* solid button text */
+  --app-active:   #d8d2c2;  /* active sidebar row */
+  --app-book:     #7a5c2e;  /* books accent */
+
+  /* history density strip, lightest → heaviest */
+  --heat-0: #e0dacb;
+  --heat-1: #cdc4ad;
+  --heat-2: #a89b7c;
+  --heat-3: #6f6a5e;
+}
+
+.dark {
+  --app-bg:       #121317;
+  --app-rail:     #0d0e11;
+  --app-surface:  #191b20;
+  --app-line:     #1e2026;
+  --app-line-2:   #2a2d34;
+  --app-ink:      #f0ede6;
+  --app-muted:    #9a9ca4;
+  --app-dim:      #8d9099;  /* >=5.4:1 on bg/surface — was borderline in dark mode */
+  --app-faint:    #7d818c;  /* >=4.4:1 on bg/surface, was near-invisible */
+  --app-accent:   #e0a34a;
+  --app-track:    #2a2d34;
+  --app-prog:     #e0a34a;
+  --app-btn:      #f0ede6;
+  --app-btn-fg:   #141416;
+  --app-active:   #232630;
+  --app-book:     #c9954a;
+
+  --heat-0: #1e2026;
+  --heat-1: #3a3123;
+  --heat-2: #8a6a34;
+  --heat-3: #e0a34a;
+}
+
+@theme inline {
+  --color-bg:      var(--app-bg);
+  --color-rail:    var(--app-rail);
+  --color-surface: var(--app-surface);
+  --color-line:    var(--app-line);
+  --color-line2:   var(--app-line-2);
+  --color-ink:     var(--app-ink);
+  --color-muted:   var(--app-muted);
+  --color-dim:     var(--app-dim);
+  --color-faint:   var(--app-faint);
+  --color-accent:  var(--app-accent);
+  --color-track:   var(--app-track);
+  --color-prog:    var(--app-prog);
+  --color-btn:     var(--app-btn);
+  --color-btnfg:   var(--app-btn-fg);
+  --color-active:  var(--app-active);
+  --color-book:    var(--app-book);
+  --color-heat-0:  var(--heat-0);
+  --color-heat-1:  var(--heat-1);
+  --color-heat-2:  var(--heat-2);
+  --color-heat-3:  var(--heat-3);
+
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Today's column in the history week grid. */
+@utility k-today {
+  box-shadow: inset 0 0 0 1.5px var(--app-ink);
+}
+
+/* ---- Base --------------------------------------------------------------
+   Themes bare HTML so existing templates pick up the palette immediately,
+   before you migrate them to the utility classes.                        */
+@layer base {
+  html { background: var(--app-bg); }
+
+  body {
+    background: var(--app-bg);
+    color: var(--app-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 { color: var(--app-ink); letter-spacing: -0.025em; font-weight: 700; }
+  h1 { font-size: 30px; line-height: 1; }
+  h2 { font-size: 20px; }
+
+  p, li, td, th, label, span, dd, dt { color: inherit; }
+  small, .meta { color: var(--app-dim); }
+
+  a { color: var(--app-ink); text-decoration: none; }
+  a:hover { color: var(--app-accent); }
+
+  hr { border: 0; border-top: 1px solid var(--app-line); }
+
+  input[type="text"], input[type="search"], input[type="email"],
+  input[type="password"], textarea, select {
+    background: var(--app-surface);
+    color: var(--app-ink);
+    border: 1px solid transparent;
+    border-radius: 7px;
+    padding: 10px 14px;
+    font: 500 13.5px var(--font-sans);
+  }
+  ::placeholder { color: var(--app-dim); }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--app-line-2);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--app-accent) 25%, transparent);
+  }
+
+  button { font-family: var(--font-sans); }
+  code, kbd, .mono { font-family: var(--font-mono); }
+  :focus-visible { outline: 2px solid var(--app-accent); outline-offset: 2px; }
+}
+
+/* ---- Components --------------------------------------------------------
+   Shortcuts so an existing template only needs one class per element.     */
+@layer components {
+  /* Shared authenticated-page canvas: centered on wide displays, fluid on
+     smaller ones. Individual views should not add their own page wrappers. */
+  .k-page {
+    width: 100%; max-width: 1360px; min-height: 100%; margin-inline: auto;
+  }
+
+  .k-rail {
+    width: 14rem; flex: none; display: flex; flex-direction: column;
+    background: var(--app-rail); border-right: 1px solid var(--app-line);
+    padding: 20px 0 22px;
+  }
+  .k-rail a { display: block; padding: 7px 20px; font-size: 13px; color: var(--app-muted); }
+  .k-rail a:hover { color: var(--app-ink); }
+  .k-rail a.is-active { color: var(--app-ink); }
+  .k-rail-list {
+    margin: 0 10px; display: flex; align-items: center; justify-content: space-between;
+    border-radius: 7px; padding: 8px 10px; font-size: 13.5px; font-weight: 500;
+  }
+  .k-rail-list.is-active { background: var(--app-active); color: var(--app-ink); }
+  .k-rail-label {
+    padding: 0 20px 8px; font: 500 10px var(--font-mono);
+    letter-spacing: .16em; color: var(--app-faint);
+  }
+  .k-count { font: 500 11px var(--font-mono); color: var(--app-faint); }
+
+  /* History: busy days keep their count visible without stretching the grid. */
+  .k-history-grid { align-items: start; }
+  .k-history-grid > div { min-width: 0; }
+  .k-history-activity { margin-bottom: 10px; }
+  .k-history-activity p { color: var(--app-muted); font: 500 10px var(--font-mono); }
+  .k-history-density {
+    display: block; height: 4px; margin-top: 6px; overflow: hidden;
+    border-radius: 999px; background: var(--app-track);
+  }
+  .k-history-density > span {
+    display: block; max-width: 100%; height: 100%;
+    border-radius: inherit; background: var(--app-accent);
+  }
+  .k-history-entries { display: grid; gap: 6px; }
+  .k-history-more { margin-top: 8px; }
+  .k-history-more > summary {
+    cursor: pointer; border: 1px solid var(--app-line-2); border-radius: 6px;
+    padding: 7px; color: var(--app-muted); font: 600 11px var(--font-sans);
+  }
+  .k-history-more > summary:hover { color: var(--app-ink); border-color: var(--app-ink); }
+  .k-history-overflow {
+    margin-top: 8px; padding: 3px;
+  }
+  .k-history-card {
+    display: flex; align-items: center; gap: 7px; min-width: 0;
+    border-radius: 8px; padding: 8px; background: var(--app-active);
+  }
+  .k-history-card:hover { opacity: .9; }
+  .k-history-card-title { color: var(--app-ink); font-size: 12px; font-weight: 600; overflow-wrap: anywhere; }
+  .k-history-card-ranges { margin-top: 3px; color: var(--app-dim); font: 500 10px/1.5 var(--font-mono); overflow-wrap: anywhere; }
+  .k-history-card-count { margin-top: 4px; color: var(--app-muted); font-size: 10px; }
+  .k-history-poster {
+    width: 28px; height: 40px; flex: none; overflow: hidden;
+    border-radius: 4px; background: var(--app-track);
+  }
+  .k-history-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 3px; }
+  .k-history-badge {
+    border-radius: 3px; padding: 2px 4px; background: var(--app-surface);
+    color: var(--app-muted); font: 600 7px var(--font-mono);
+  }
+
+  /* Up-next row */
+  .k-card {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--app-surface); border-radius: 10px; padding: 11px 14px 11px 11px;
+  }
+  .k-title { font: 600 15px var(--font-sans); color: var(--app-ink); }
+  .k-code  { font: 500 11px var(--font-mono); color: var(--app-accent); }
+  .k-sub   { font: 400 13px var(--font-sans); color: var(--app-muted); margin-top: 3px; }
+  .k-meta  { font: 500 10.5px var(--font-mono); color: var(--app-dim); }
+
+  /* Posters */
+  .k-poster {
+    width: 46px; height: 68px; flex: none; border-radius: 5px;
+    object-fit: cover; overflow: hidden; background: var(--app-track);
+  }
+  .k-poster-lg {
+    position: relative; aspect-ratio: 2 / 3; width: 100%;
+    border-radius: 8px; overflow: hidden; background: var(--app-track);
+  }
+  .k-poster-lg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .k-poster-lg::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 45%, rgb(0 0 0 / .55) 100%);
+  }
+  .k-poster-ph {
+    background-image: repeating-linear-gradient(
+      135deg, rgb(0 0 0 / 0.2) 0 6px, transparent 6px 14px);
+  }
+
+  .k-bar { height: 4px; flex: 1; border-radius: 999px; background: var(--app-track); overflow: hidden; }
+  .k-bar > span { display: block; height: 100%; background: var(--app-prog); }
+
+  .k-btn {
+    display: inline-grid; place-items: center;
+    background: var(--app-btn); color: var(--app-btn-fg);
+    border: 0; border-radius: 999px; width: 34px; height: 34px;
+    font-size: 14px; font-weight: 500; cursor: pointer;
+  }
+  .k-btn:hover { opacity: .9; }
+  .k-btn-ghost {
+    display: inline-grid; place-items: center;
+    border: 1px solid var(--app-line-2); border-radius: 999px;
+    width: 34px; height: 34px; color: var(--app-muted); background: transparent;
+  }
+  .k-auto-btn {
+    display: inline-grid; place-items: center;
+    border: 1px solid var(--app-line-2); border-radius: 999px;
+    min-width: 58px; height: 34px; padding: 0 10px;
+    color: var(--app-muted); background: transparent;
+    font: 600 10px var(--font-mono);
+  }
+  .k-auto-btn.is-active {
+    border-color: transparent; color: var(--app-btn-fg); background: var(--app-btn);
+  }
+  .k-primary-action {
+    border: 0; border-radius: 7px; padding: 8px 14px;
+    background: var(--app-btn); color: var(--app-btn-fg);
+    font: 500 13px var(--font-sans); cursor: pointer;
+  }
+  .k-primary-action:hover { opacity: .9; }
+  .k-chip {
+    border-radius: 999px; padding: 7px 13px; font: 500 12px var(--font-sans);
+    border: 1px solid var(--app-line-2); color: var(--app-muted);
+  }
+  .k-chip.is-active { background: var(--app-btn); color: var(--app-btn-fg); border-color: transparent; }
+
+  .k-grid    { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .k-shelf   { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
+  .k-shelf.k-shelf-sm { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 12px; }
+  .k-section { border-top: 1px solid var(--app-line); padding-top: 20px; }
+
+  .k-progress-form {
+    border: 1px solid var(--app-line); border-radius: 10px;
+    background: var(--app-surface); padding: 14px;
+  }
+  .k-unit-switch {
+    display: inline-flex; gap: 3px; border-radius: 7px;
+    background: var(--app-track); padding: 3px;
+  }
+  .k-unit-switch label {
+    cursor: pointer; border-radius: 5px; padding: 6px 11px;
+    color: var(--app-dim); font: 600 10px var(--font-mono);
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  .k-unit-switch label.is-active {
+    background: var(--app-surface); color: var(--app-ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / .1);
+  }
+  .k-unit-switch label:has(input:disabled) { cursor: not-allowed; opacity: .45; }
+  .k-unit-switch input { position: absolute; opacity: 0; pointer-events: none; }
+  .k-progress-entry {
+    display: grid; grid-template-columns: minmax(150px, 1fr) auto auto;
+    align-items: end; gap: 12px; margin-top: 14px;
+  }
+  .k-progress-field { display: block; min-width: 0; }
+  .k-progress-input-wrap { position: relative; display: block; margin-top: 7px; }
+  .k-progress-input-wrap input {
+    width: 100%; height: 40px; border: 1px solid var(--app-line-2);
+    border-radius: 7px; background: var(--app-bg); color: var(--app-ink);
+    padding: 8px 62px 8px 12px; font: 600 14px var(--font-mono);
+  }
+  .k-progress-input-wrap input:focus {
+    outline: none; border-color: var(--app-book);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--app-book) 20%, transparent);
+  }
+  .k-progress-suffix {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    pointer-events: none; color: var(--app-dim); font: 500 10px var(--font-mono);
+    text-transform: uppercase;
+  }
+  .k-progress-total {
+    min-width: 88px; padding-bottom: 11px; color: var(--app-dim);
+    font: 500 10px var(--font-mono); white-space: nowrap;
+  }
+  .k-progress-total strong { color: var(--app-muted); }
+  .k-progress-entry .k-primary-action { height: 40px; white-space: nowrap; }
+  @media (max-width: 640px) {
+    .k-progress-entry { grid-template-columns: 1fr; }
+    .k-progress-total { padding-bottom: 0; }
+    .k-progress-entry .k-primary-action { width: 100%; }
+  }
+
+  /* Books */
+  .k-cover-sm {
+    display: block; overflow: hidden; border-radius: 2px 4px 4px 2px;
+    box-shadow: inset 4px 0 0 rgb(0 0 0 / .28);
+  }
+  .k-cover {
+    overflow: hidden; border-radius: 3px 8px 8px 3px;
+    box-shadow: inset 9px 0 0 rgb(0 0 0 / .3);
+  }
+  .k-col {
+    color: var(--app-faint); font: 500 10px var(--font-mono);
+    letter-spacing: .14em; text-transform: uppercase;
+  }
+  .k-status {
+    display: inline-block; border-radius: 5px; padding: 4px 8px;
+    background: var(--app-active); color: var(--app-muted);
+    font: 500 11px var(--font-mono); white-space: nowrap;
+  }
+  .k-status--reading { background: #efe2cc; color: #7a5c2e; }
+  .k-status--read { background: #d8e6df; color: #3f7d6b; }
+  .k-status--dnf { background: #f0d9d3; color: #b4331f; }
+  .k-date-field { display: block; min-width: 0; }
+  .k-date-label {
+    display: block; margin-bottom: 6px; color: var(--app-muted);
+    font: 500 10px var(--font-mono); letter-spacing: .08em; text-transform: uppercase;
+  }
+  .k-date-input {
+    width: 100%; border: 1px solid var(--app-line-2); border-radius: 7px;
+    padding: 8px 10px; background: var(--app-bg); color: var(--app-ink);
+    font: 500 11px var(--font-mono); color-scheme: light;
+  }
+  .dark .k-date-input { color-scheme: dark; }
+  .k-date-input:focus {
+    outline: none; border-color: var(--app-book);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--app-book) 20%, transparent);
+  }
+  .dark .k-status--reading { background: #3a3123; color: #c9954a; }
+  .dark .k-status--read { background: #1e3029; color: #6fbf9b; }
+  .dark .k-status--dnf { background: #331e1b; color: #e07a63; }
+
+  /* Imports: explicit component layout so the page remains structured even
+     when Tailwind does not discover an arbitrary utility during a build. */
+  .k-import-page { padding: 40px 48px; }
+  .k-import-header { max-width: 640px; margin-bottom: 36px; }
+  .k-import-eyebrow {
+    margin-bottom: 12px; color: var(--app-accent);
+    font: 600 9px var(--font-mono); letter-spacing: .2em; text-transform: uppercase;
+  }
+  .k-import-title { font-size: 32px; letter-spacing: -.045em; }
+  .k-import-intro { max-width: 560px; margin-top: 12px; color: var(--app-muted); font-size: 14px; line-height: 1.7; }
+  .k-import-layout {
+    display: grid; grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: start; gap: 32px;
+  }
+  .k-import-main, .k-import-aside { display: grid; gap: 20px; }
+  .k-import-aside { position: sticky; top: 32px; }
+  .k-import-sources {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: hidden; border: 1px solid var(--app-line); border-radius: 14px;
+    background: var(--app-line);
+  }
+  .k-import-source { min-width: 0; padding: 24px; background: var(--app-surface); }
+  .k-import-source + .k-import-source { border-left: 1px solid var(--app-line); }
+  .k-import-source-head { min-height: 54px; display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+  .k-import-label { color: var(--app-faint); font: 500 9px var(--font-mono); letter-spacing: .16em; text-transform: uppercase; }
+  .k-import-heading { margin-top: 8px; font-size: 18px; }
+  .k-import-copy { min-height: 82px; margin-top: 18px; color: var(--app-muted); font-size: 12.5px; line-height: 1.6; }
+  .k-import-badge {
+    flex: none; border: 1px solid var(--app-line-2); border-radius: 999px;
+    padding: 5px 9px; color: var(--app-muted);
+    font: 600 8px var(--font-mono); letter-spacing: .12em; text-transform: uppercase;
+  }
+  .k-import-badge.is-warning { border-color: var(--app-accent); color: var(--app-accent); }
+  .k-import-panel { border: 1px solid var(--app-line); border-radius: 14px; padding: 20px; background: var(--app-surface); }
+  .k-import-panel-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+  .k-import-panel-title { margin-top: 8px; font-size: 18px; }
+  .k-import-refresh { color: var(--app-faint); font: 500 8px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+  .k-import-status { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .k-import-status-dot { width: 8px; height: 8px; flex: none; border-radius: 999px; background: var(--app-accent); }
+  .k-import-status-dot.is-ok { background: var(--heat-3); }
+  .k-import-value { margin-top: 14px; color: var(--app-ink); font-size: 13px; font-weight: 600; }
+  .k-import-note { margin-top: 8px; color: var(--app-muted); font-size: 11.5px; line-height: 1.65; }
+  .k-import-token { margin-top: 14px; border-radius: 10px; padding: 12px; background: var(--app-bg); }
+  .k-import-token code { color: var(--app-muted); font-size: 11px; }
+  .k-import-token-meta { margin-top: 8px; color: var(--app-faint); font: 500 8px var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
+  .k-import-export { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; font-size: 12.5px; font-weight: 600; }
+  .k-import-export + .k-import-export { border-top: 1px solid var(--app-line); }
+  .k-review-row {
+    border: 1px solid var(--app-line); border-radius: 12px;
+    padding: 18px; background: var(--app-surface);
+  }
+
+  .k-dropzone-target {
+    min-height: 142px; display: flex; cursor: pointer; flex-direction: column;
+    align-items: center; justify-content: center; border: 1px dashed var(--app-line-2);
+    border-radius: 11px; padding: 24px 20px; background: color-mix(in oklab, var(--app-bg) 55%, transparent);
+    text-align: center; transition: border-color .15s, background .15s;
+  }
+  .k-dropzone-target:hover { border-color: var(--app-accent); background: var(--app-bg); }
+  .k-dropzone-icon {
+    width: 36px; height: 36px; display: grid; place-items: center; margin-bottom: 12px;
+    border: 1px solid var(--app-line-2); border-radius: 999px; color: var(--app-muted);
+    font: 500 16px var(--font-mono);
+  }
+  .k-dropzone-label { color: var(--app-ink); font-size: 13px; font-weight: 600; }
+  .k-dropzone-hint { margin-top: 6px; color: var(--app-faint); font: 500 9px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+  .k-dropzone-actions { min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+
+  @media (max-width: 1180px) {
+    .k-import-layout { grid-template-columns: minmax(0, 1fr); }
+    .k-import-aside { position: static; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 760px) {
+    .k-import-page { padding: 28px 20px; }
+    .k-import-sources, .k-import-aside { grid-template-columns: minmax(0, 1fr); }
+    .k-import-source + .k-import-source { border-top: 1px solid var(--app-line); border-left: 0; }
+    .k-import-copy { min-height: 0; }
+  }
+
+  @media (max-width: 1024px) {
+    .k-grid  { grid-template-columns: minmax(0, 1fr); }
+    .k-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .k-shelf.k-shelf-sm { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+}
+
+/* HTMX: fade the row while a mark-watched request is in flight. */
+.htmx-request.k-card,
+.htmx-request .k-card { opacity: .55; transition: opacity .12s ease; }
+
+/* Alpine: hide popovers/menus until Alpine has initialized them. */
+[x-cloak] { display: none !important; }

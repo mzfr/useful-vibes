@@ -1,0 +1,31 @@
+<div class="mt-3 border-t border-line pt-3">
+  {% if search_error %}
+    <p class="text-[12px] text-danger">{{ search_error }}</p>
+  {% elif results %}
+    <p class="k-import-label">Results for “{{ query }}”</p>
+    <div class="mt-2 divide-y divide-line">
+      {% for result in results %}{% with hit=result.hit %}
+        <div class="flex items-center gap-3 py-3">
+          {% if hit.image %}<img src="{{ hit.image }}" alt="" class="h-14 w-10 rounded object-cover">{% endif %}
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-[12.5px] font-semibold text-ink">{{ hit.title }}</p>
+            <p class="mt-1 font-mono text-[9px] text-faint">{{ hit.media_id }}{% if hit.year %} · {{ hit.year }}{% endif %}{% if hit.runtime %} · {{ hit.runtime }} pages{% endif %}</p>
+          </div>
+          <form method="post" action="{% url 'imports:review_book_match' job.pk row_index %}">
+            {% csrf_token %}
+            <input type="hidden" name="olid" value="{{ hit.media_id }}">
+            <input type="hidden" name="selection_token" value="{{ result.selection_token }}">
+            <input type="hidden" name="title" value="{{ hit.title }}">
+            <input type="hidden" name="image" value="{{ hit.image }}">
+            <input type="hidden" name="year" value="{{ hit.year|default:'' }}">
+            <input type="hidden" name="pages" value="{{ hit.runtime|default:'' }}">
+            {% for isbn in hit.raw.isbn %}<input type="hidden" name="isbn" value="{{ isbn }}">{% endfor %}
+            <button type="submit" class="k-primary-action">Use match</button>
+          </form>
+        </div>
+      {% endwith %}{% endfor %}
+    </div>
+  {% else %}
+    <p class="text-[12px] text-muted">No Open Library results for “{{ query }}”. Try a shorter title, author, or ISBN.</p>
+  {% endif %}
+</div>

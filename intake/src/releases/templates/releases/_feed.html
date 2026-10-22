@@ -1,0 +1,50 @@
+
+{% regroup new_episodes by show as episodes_by_show %}
+
+{% if new_seasons or episodes_by_show %}
+
+  {% if new_seasons %}
+    <section>
+      <h3 class="text-sm font-semibold text-muted uppercase tracking-wide mb-2">New seasons available</h3>
+      <ul class="space-y-2">
+        {% for s in new_seasons %}
+          <li class="bg-surface border border-line rounded-lg p-3 flex gap-3 items-center">
+            {% if s.show.image %}<img src="{{ s.show.image }}" alt="" class="w-10 h-14 rounded object-cover">{% endif %}
+            <div class="flex-1">
+              <p class="font-medium">{{ s.show.title }}</p>
+              <p class="text-muted text-sm">
+                Season {{ s.season_number }}
+                {% if s.episode_count %}· {{ s.episode_count }} episodes{% endif %}
+                {% if s.air_date %}· aired {{ s.air_date }}{% endif %}
+              </p>
+            </div>
+            <a class="bg-btn text-btnfg no-underline px-3 py-1.5 rounded-full text-[12px] font-medium"
+               href="{{ s.show.get_absolute_url }}">Open</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  {% if episodes_by_show %}
+    <section>
+      <h3 class="text-sm font-semibold text-muted uppercase tracking-wide mb-2">New episodes available</h3>
+      <ul class="space-y-2">
+        {% for group in episodes_by_show %}
+          <li class="bg-surface border border-line rounded-lg p-3 flex gap-3 items-center">
+            {% if group.grouper.image %}<img src="{{ group.grouper.image }}" alt="" class="w-10 h-14 rounded object-cover">{% endif %}
+            <div class="flex-1">
+              <p class="font-medium">{{ group.grouper.title }}</p>
+              <p class="text-muted text-sm">{{ group.list|length }} new episode{{ group.list|length|pluralize }}</p>
+            </div>
+            <a class="bg-btn text-btnfg no-underline px-3 py-1.5 rounded-full text-[12px] font-medium"
+               href="{{ group.grouper.get_absolute_url }}">Open</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+{% else %}
+  <p class="text-muted text-sm">Nothing new.</p>
+{% endif %}

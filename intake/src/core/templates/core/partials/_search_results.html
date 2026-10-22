@@ -1,0 +1,48 @@
+{% comment %}
+  The search results block. Rendered inline on a full page load and returned
+  on its own for the live-search HTMX swap, so both paths stay identical.
+{% endcomment %}
+<div id="search-results">
+  {% if local_results %}
+    <div class="px-7 pt-4 pb-2">
+      <p class="font-sans text-[13px] text-dim">{{ local_results|length }} result{{ local_results|length|pluralize }} in your library</p>
+      <div class="k-shelf mt-3">
+        {% for hit in local_results %}
+          <a href="{{ hit.url }}">
+            <div class="k-poster-lg">
+              {% if hit.image %}
+                <img src="{{ hit.image }}" alt="">
+              {% else %}
+                <div class="k-poster-ph size-full"></div>
+              {% endif %}
+            </div>
+            <p class="mt-2 truncate font-sans text-[13px] font-semibold text-ink">{{ hit.title }}</p>
+            <p class="mt-[3px] font-mono text-[10.5px] font-medium text-dim capitalize">
+              {{ hit.media_type }}{% if hit.year %} · {{ hit.year }}{% endif %}
+            </p>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if query and not local_results %}
+    <div class="px-7 pt-4 pb-2">
+      <p class="font-sans text-[13px] text-dim">Nothing in your library for "{{ query }}"{% if hidden_local %} — {{ hidden_local }} match{{ hidden_local|pluralize }} hidden by the 2000+ filter{% endif %}. Checking TMDB…</p>
+    </div>
+  {% elif hidden_local %}
+    <div class="px-7 pt-4 pb-2">
+      <p class="font-sans text-[13px] text-dim">{{ hidden_local }} older match{{ hidden_local|pluralize }} hidden by the 2000+ filter.</p>
+    </div>
+  {% endif %}
+
+  {% if search_remote %}
+    {% comment %}
+      Loaded separately so a slow or failing TMDB call never blocks the
+      local results above it.
+    {% endcomment %}
+    <div hx-get="{% url 'core:remote_search' %}?q={{ query|urlencode }}&type={{ media_type|urlencode }}{% if year_filter_off %}&year_filter=off{% endif %}"
+         hx-trigger="load"
+         hx-swap="outerHTML"></div>
+  {% endif %}
+</div>

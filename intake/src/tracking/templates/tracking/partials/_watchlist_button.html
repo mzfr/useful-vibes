@@ -1,0 +1,9 @@
+{% comment %}Watchlist toggle for an item already in the local catalog.{% endcomment %}
+<button type="button"
+        hx-post="{% url 'tracking:watchlist_toggle' item.pk %}"
+        hx-swap="outerHTML"
+        aria-pressed="{% if on_watchlist %}true{% else %}false{% endif %}"
+        class="w-full rounded-md border px-2 py-1.5 font-sans text-[11.5px] font-medium cursor-pointer bg-transparent
+               {% if on_watchlist %}border-accent text-accent{% else %}border-line2 text-muted hover:border-ink hover:text-ink{% endif %}">
+  {% if on_watchlist %}✓ On watchlist{% else %}+ Watchlist{% endif %}
+</button>

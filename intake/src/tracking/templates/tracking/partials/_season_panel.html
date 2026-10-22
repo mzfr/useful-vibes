@@ -1,0 +1,11 @@
+<div id="season-panel-body-{{ season_number }}">
+  {% for e in episodes %}
+    {% include "tracking/partials/_episode_row.html" with e=e %}
+  {% empty %}
+    <p class="py-5 text-[13px] text-dim">No episodes in this season yet.</p>
+  {% endfor %}
+
+  {% if episodes %}
+    {% include "tracking/partials/_season_range_action.html" %}
+  {% endif %}
+</div>

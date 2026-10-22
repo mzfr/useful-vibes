@@ -1,0 +1,11 @@
+{# Sources button. Caller sets `sources_url`. Opens the modal immediately with a placeholder; the HTMX response swaps in the panel. #}
+<button type="button"
+        title="Find sources"
+        onclick="const m = document.getElementById('sources-modal');
+                 m.classList.remove('hidden'); m.classList.add('grid');
+                 m.innerHTML = '<div class=&quot;w-full max-w-[560px] rounded-[14px] border border-line bg-surface p-5 text-[13px] text-muted&quot;>Looking…</div>';"
+        hx-get="{{ sources_url }}"
+        hx-target="#sources-modal" hx-swap="innerHTML"
+        class="rounded-lg border border-line2 bg-transparent px-4 py-2.5 text-[13px] font-medium text-ink hover:border-ink cursor-pointer whitespace-nowrap">
+  Sources
+</button>

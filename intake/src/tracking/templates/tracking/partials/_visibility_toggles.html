@@ -1,0 +1,12 @@
+{% for v in visibility_toggles %}
+  <div class="flex items-center gap-2">
+    <span class="text-[12px] text-muted whitespace-nowrap">{{ v.label }}</span>
+    <button type="button" role="switch" aria-checked="{{ v.on|yesno:'true,false' }}"
+            hx-post="{% url 'tracking:show_visibility' show.media_id %}"
+            hx-vals='{"field": "{{ v.field }}", "on": "{{ v.on|yesno:'1,0' }}"}'
+            hx-target="#visibility-toggles" hx-swap="innerHTML"
+            class="relative h-5 w-[34px] rounded-full cursor-pointer border-none {% if v.on %}bg-btn{% else %}bg-track{% endif %}">
+      <span class="absolute top-0.5 size-4 rounded-full bg-bg {% if v.on %}right-0.5{% else %}left-0.5{% endif %}"></span>
+    </button>
+  </div>
+{% endfor %}

@@ -1,0 +1,50 @@
+<section x-data="{ openSeason: null }">
+  <div class="mb-3.5 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h2 class="text-[20px] font-bold tracking-[-0.025em] text-ink">Seasons</h2>
+      <p class="mt-1 text-[12.5px] text-dim">Open a season to browse its episodes here.</p>
+    </div>
+    <label class="flex items-center gap-2 text-[12px] text-muted">
+      Watched on (optional)
+      <input type="date" id="watched-on" name="watched_on"
+             max="{% now 'Y-m-d' %}" class="w-auto !py-1.5 font-mono text-[11.5px]">
+    </label>
+  </div>
+
+  <div class="overflow-hidden rounded-[10px] border border-line">
+    {% for s in seasons %}
+      <article id="season-{{ s.number }}" class="border-b border-line last:border-b-0">
+        <button type="button"
+                @click="openSeason = openSeason === {{ s.number }} ? null : {{ s.number }}"
+                hx-get="{% url 'tracking:season_panel' show.media_id s.number %}"
+                hx-target="#season-panel-{{ s.number }}" hx-swap="innerHTML"
+                hx-trigger="click once"
+                class="flex w-full items-center gap-4 bg-surface px-4 py-3.5 text-left cursor-pointer hover:bg-active">
+          <span class="w-[92px] shrink-0 text-[15px] font-semibold text-ink">Season {{ s.number }}</span>
+          <div class="k-bar min-w-[80px] max-w-[240px]"><span style="width: {{ s.percent }}%"></span></div>
+          <span class="font-mono text-[11px] text-dim">{{ s.watched_count }} / {{ s.episode_count|default:'—' }}</span>
+          <span class="ml-auto font-mono text-[10px] font-semibold tracking-[0.08em]
+                       {% if s.status == 'complete' %}text-dim{% elif s.status == 'not_opened' %}text-faint{% else %}text-accent{% endif %}">
+            {% if s.status == 'complete' %}COMPLETE
+            {% elif s.status == 'not_opened' %}OPEN SEASON
+            {% elif s.status == 'in_progress' %}{{ s.remaining }} LEFT
+            {% else %}NEW{% endif %}
+          </span>
+          <span class="w-4 text-center text-muted" x-text="openSeason === {{ s.number }} ? '−' : '+'">+</span>
+        </button>
+
+        {% comment %}
+          Episodes load on first expand: rendering every season upfront made
+          long-running shows ship ~1 MB of HTML and paint season by season.
+        {% endcomment %}
+        <div x-show="openSeason === {{ s.number }}" x-cloak>
+          <div id="season-panel-{{ s.number }}" class="bg-bg px-4 pb-4">
+            <p class="py-5 text-[13px] text-dim">Loading season…</p>
+          </div>
+        </div>
+      </article>
+    {% empty %}
+      <p class="bg-surface px-4 py-5 text-[13px] text-dim">No seasons yet.</p>
+    {% endfor %}
+  </div>
+</section>

@@ -1,0 +1,14 @@
+{% if user_messages %}
+  <div class="pointer-events-none fixed bottom-5 left-1/2 z-50 -translate-x-1/2">
+    {% for msg in user_messages %}
+      <div class="pointer-events-auto mt-2 rounded-lg bg-btn px-4 py-2.5 font-sans text-[13px] font-medium text-btnfg shadow-lg"
+           x-data="{ show: true }"
+           x-show="show"
+           x-init="setTimeout(() => show = false, 4000)"
+           x-transition.opacity.duration.200ms
+           role="status">
+        {{ msg.text }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

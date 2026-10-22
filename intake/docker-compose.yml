@@ -1,0 +1,26 @@
+services:
+  web:
+    build: .
+    image: intake:latest
+    container_name: intake
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - intake_data:/data
+    environment:
+      - INTAKE_SECRET_KEY=${INTAKE_SECRET_KEY:?set me}
+      - INTAKE_DB_PATH=/data/db.sqlite3
+      - INTAKE_INITIAL_PASSWORD=${INTAKE_INITIAL_PASSWORD:-}
+      - INTAKE_INITIAL_USERNAME=${INTAKE_INITIAL_USERNAME:-admin}
+      # Comma-separated hostnames/IPs you serve on, e.g. "localhost,192.168.1.10".
+      # "*" is rejected in production settings.
+      - INTAKE_ALLOWED_HOSTS=${INTAKE_ALLOWED_HOSTS:?set me, e.g. localhost}
+      - TMDB_API_KEY=${TMDB_API_KEY:-}
+
+      - INTAKE_TIME_ZONE=${INTAKE_TIME_ZONE:-UTC}
+      # Set to 1 when serving through an HTTPS reverse proxy.
+      - INTAKE_BEHIND_TLS=${INTAKE_BEHIND_TLS:-0}
+
+volumes:
+  intake_data:

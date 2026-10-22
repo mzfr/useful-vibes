@@ -1,0 +1,18 @@
+<form class="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4"
+      hx-post="{% url 'tracking:bulk_season' show.media_id season_number %}"
+      hx-include="#watched-on"
+      hx-target="#season-panel-body-{{ season_number }}"
+      hx-swap="outerHTML">
+  <input type="hidden" name="action" value="range">
+  <span class="font-mono text-[10px] uppercase tracking-[0.1em] text-faint">Mark watched</span>
+  <label class="sr-only" for="range-start-{{ season_number }}">First episode</label>
+  <input id="range-start-{{ season_number }}" type="number" name="start" min="1" placeholder="1"
+         required class="w-16 !py-1.5 font-mono text-[12px]">
+  <span class="text-[12px] text-dim">–</span>
+  <label class="sr-only" for="range-end-{{ season_number }}">Last episode</label>
+  <input id="range-end-{{ season_number }}" type="number" name="end" min="1" placeholder="6"
+         required class="w-16 !py-1.5 font-mono text-[12px]">
+  <button type="submit"
+          class="rounded-[7px] border border-line2 px-3 py-1.5 text-[12.5px] font-medium whitespace-nowrap text-ink hover:border-ink cursor-pointer bg-transparent">Mark range</button>
+  <span class="text-[11px] text-dim">Already-watched episodes stay unchanged.</span>
+</form>

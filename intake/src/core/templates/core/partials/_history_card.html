@@ -1,0 +1,20 @@
+<a href="{{ w.show.get_absolute_url }}" class="k-history-card" title="{{ w.show.title }}{% if w.episode_code %} · {{ w.episode_code }}{% endif %} · {{ w.watched_at_time }}">
+  <div class="k-history-poster">
+    {% if w.show.image %}
+      <img src="{{ w.show.image }}" alt="" loading="lazy" class="size-full object-cover">
+    {% else %}
+      <div class="k-poster-ph size-full"></div>
+    {% endif %}
+  </div>
+  <div class="min-w-0 flex-1">
+    <p class="k-history-card-title">{{ w.show.title }}</p>
+    {% if w.episode_code %}<p class="k-history-card-ranges">{{ w.episode_code }}</p>{% endif %}
+    {% if w.completion_count > 1 %}
+      <p class="k-history-card-count">{{ w.completion_count }} completions{% if w.repeat_count %} · {{ w.repeat_count }} repeat{{ w.repeat_count|pluralize }}{% endif %}</p>
+    {% endif %}
+    <div class="k-history-card-meta">
+      <span class="k-history-badge">{{ w.media_label }}</span>
+      <span class="font-mono text-[10px] text-dim">{{ w.watched_at_time }}</span>
+    </div>
+  </div>
+</a>

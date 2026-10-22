@@ -1,0 +1,21 @@
+<article class="k-card relative isolate">
+  <a href="{{ row.item.get_absolute_url }}"
+     aria-label="Open {{ row.item.title }}" class="absolute inset-0 z-0 rounded-[10px]"></a>
+  <a href="{{ row.item.get_absolute_url }}">
+    {% if row.item.image %}
+      <img src="{{ row.item.image }}" alt="" width="46" height="68" loading="lazy" class="k-poster">
+    {% else %}
+      <div class="k-poster k-poster-ph {{ placeholder_class }}"></div>
+    {% endif %}
+  </a>
+
+  <div class="min-w-0 flex-1">
+    <a href="{{ row.item.get_absolute_url }}" class="k-title truncate">{{ row.item.title }}</a>
+    <p class="k-sub">{{ subtitle }}</p>
+  </div>
+
+  <button type="button" title="Mark {{ row.item.title }} {{ verb }}"
+          hx-post="{% url 'tracking:up_next_item_finished' row.item.pk %}"
+          hx-target="#up-next-grid" hx-swap="innerHTML"
+          class="k-btn relative z-10 shrink-0">✓</button>
+</article>

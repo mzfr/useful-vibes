@@ -1,0 +1,71 @@
+<article id="movie-body" class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px]">
+  <main class="border-line px-[30px] pb-[36px] pt-[30px] lg:border-r">
+    <div class="flex items-start gap-7">
+      <div class="h-[285px] w-[190px] shrink-0 overflow-hidden rounded-[9px] bg-track">
+        {% if movie.image %}
+          <img src="{{ movie.image }}" alt="" class="size-full object-cover">
+        {% else %}
+          <div class="k-poster-ph size-full"></div>
+        {% endif %}
+      </div>
+
+      <div class="min-w-0 flex-1 pt-1">
+        <p class="font-mono text-[10.5px] font-semibold tracking-[0.16em] text-faint">
+          MOVIE{% if movie.release_date %} · {{ movie.release_date|date:"Y" }}{% endif %}{% if movie.runtime %} · {{ movie.runtime }} MIN{% endif %}
+        </p>
+        <h1 class="mt-2.5 text-[38px] font-bold leading-none tracking-[-0.035em] text-ink">{{ movie.title }}</h1>
+
+        {% if genres %}
+          <p class="mt-3 font-mono text-[11px] text-dim">{{ genres|join:" · " }}</p>
+        {% endif %}
+        {% if movie.synopsis %}
+          <p class="mt-4 max-w-[700px] text-[14px] leading-[1.6] text-muted text-pretty">{{ movie.synopsis }}</p>
+        {% endif %}
+
+        <div class="mt-5 flex flex-wrap items-end gap-2.5">
+          {% url 'tracking:movie_mark_watched' movie.media_id as watch_url %}
+          {% url 'tracking:movie_unwatch' movie.media_id as unwatch_url %}
+          {% url 'tracking:movie_rate' movie.media_id as rate_url %}
+          {% include "tracking/partials/_watch_controls.html" with target_id="movie-body" date_id="movie-watched-on" score=tracking.score %}
+
+          <div class="w-[130px]">
+            {% include "tracking/partials/_watchlist_button.html" %}
+          </div>
+          {% include "core/partials/_favorite_button.html" %}
+          {% if movie.source == "tmdb" %}
+            {% url 'sources:panel' movie.source "movie" movie.media_id as sources_url %}
+            {% if sources_url %}
+              {% include "sources/_button.html" with sources_url=sources_url %}
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% if studios %}
+      <div class="mt-7 border-t border-line pt-4">
+        <p class="k-rail-label px-0">STUDIOS</p>
+        <p class="text-[13px] text-muted">{{ studios|join:" · " }}</p>
+      </div>
+    {% endif %}
+  </main>
+
+  <aside class="px-6 pb-[32px] pt-[30px]">
+    <p class="k-rail-label px-0">WATCH HISTORY</p>
+    {% for event in watches %}
+      <div class="flex items-center justify-between border-b border-line py-2.5">
+        <span class="text-[12.5px] text-muted">{{ event.completed_at|date:"j M Y, H:i" }}</span>
+        <span class="font-mono text-[10.5px] text-dim">{% if forloop.last %}first watch{% else %}rewatch{% endif %}</span>
+      </div>
+    {% empty %}
+      <p class="py-3 text-[13px] text-dim">Never watched.</p>
+    {% endfor %}
+
+    {% if tracking %}
+      <div class="mt-7 border-t border-line pt-4">
+        <p class="k-rail-label px-0">TRACKING</p>
+        <p class="text-[12.5px] text-muted">{{ tracking.get_status_display }}{% if watch_count %} · {{ watch_count }} watch{{ watch_count|pluralize:"es" }}{% endif %}</p>
+      </div>
+    {% endif %}
+  </aside>
+</article>

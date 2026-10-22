@@ -1,0 +1,10 @@
+{% comment %}Star toggle. Swaps itself; works for any item incl. episodes.{% endcomment %}
+<button type="button"
+        id="favorite-btn-{{ item.pk }}"
+        hx-post="{% url 'core:toggle_favorite' item.pk %}"
+        hx-swap="outerHTML"
+        aria-pressed="{% if is_favorite %}true{% else %}false{% endif %}"
+        title="{% if is_favorite %}Remove from favorites{% else %}Add to favorites{% endif %}"
+        class="k-btn-ghost !size-9 shrink-0 text-[15px] cursor-pointer {% if is_favorite %}text-accent{% else %}text-dim{% endif %}">
+  {% if is_favorite %}★{% else %}☆{% endif %}
+</button>

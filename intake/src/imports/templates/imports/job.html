@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Import job #{{ job.pk }} · {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+<div class="k-import-page">
+  <header class="k-import-header !mb-6">
+    <p class="k-import-eyebrow"><a href="{% url 'imports:index' %}">Settings</a> / Import</p>
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="k-import-title">{{ job.get_kind_display }}</h1>
+        <p class="k-import-intro">Job #{{ job.pk }} · started {{ job.created_at|date:"j M Y, H:i" }}</p>
+      </div>
+      {% if job.pending_review_count %}<span class="k-import-badge is-warning">{{ job.pending_review_count }} need review</span>{% endif %}
+    </div>
+  </header>
+
+  <div class="k-import-panel">
+    <div id="job-progress"
+         hx-get="{% url 'imports:job_progress' job.pk %}"
+         hx-trigger="every 2s"
+         hx-swap="innerHTML">
+      {% include "imports/_job_progress.html" %}
+    </div>
+    {% if job.error %}<p class="mt-4 text-[12px] text-danger">{{ job.error }}</p>{% endif %}
+  </div>
+
+  {% if job.state == "done" and review_rows %}
+    <section class="mt-5">
+      <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p class="k-import-label">Manual matching</p>
+          <h2 class="k-import-panel-title">Review imported books</h2>
+          <p class="k-import-note">Search Open Library, choose the correct work, or skip a row. The original CSV data is always retained.</p>
+        </div>
+        {% if job.resolved_review_count %}<p class="font-mono text-[9px] uppercase tracking-[0.1em] text-faint">{{ job.resolved_review_count }} resolved</p>{% endif %}
+      </div>
+      <div class="space-y-3">
+        {% for review in review_rows %}
+          {% include "imports/_book_review_row.html" %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

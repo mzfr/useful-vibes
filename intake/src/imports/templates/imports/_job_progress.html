@@ -1,0 +1,15 @@
+<div class="space-y-2">
+  <p class="text-sm">
+    Status: <strong>{{ job.get_state_display }}</strong>
+    {% if job.total %} · {{ job.processed }}/{{ job.total }} ({{ job.percent }}%){% endif %}
+  </p>
+  <div class="w-full bg-active rounded-full h-2 overflow-hidden">
+    <div class="bg-accent h-full transition-all" style="width: {{ job.percent }}%"></div>
+  </div>
+  {% if job.state == "done" or job.state == "failed" %}
+    <script>
+      const el = document.getElementById("job-progress");
+      if (el) el.removeAttribute("hx-trigger");
+    </script>
+  {% endif %}
+</div>

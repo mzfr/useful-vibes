@@ -1,0 +1,12 @@
+<div id="discontinued-content">
+  <div class="flex items-end justify-between border-b border-line px-7 pb-3 pt-[26px]">
+    <div>
+      <h1>Discontinued</h1>
+      <p class="mt-[7px] font-sans text-[13px] text-dim">
+        {{ cards|length }} show{{ cards|length|pluralize }} hidden from Up Next
+      </p>
+    </div>
+  </div>
+
+  {% include "core/partials/_collection_grid.html" with restorable=True empty_text="No discontinued shows." %}
+</div>

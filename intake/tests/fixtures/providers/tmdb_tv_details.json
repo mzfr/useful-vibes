@@ -1,0 +1,16 @@
+{
+  "id": 1399,
+  "name": "Game of Thrones",
+  "original_name": "Game of Thrones",
+  "overview": "Noble families fight for the Iron Throne.",
+  "poster_path": "/got.jpg",
+  "first_air_date": "2011-04-17",
+  "episode_run_time": [60],
+  "number_of_episodes": 73,
+  "genres": [
+    {"id": 18, "name": "Drama"},
+    {"id": 10765, "name": "Sci-Fi & Fantasy"}
+  ],
+  "credits": {"cast": [], "crew": []},
+  "external_ids": {"imdb_id": "tt0944947"}
+}

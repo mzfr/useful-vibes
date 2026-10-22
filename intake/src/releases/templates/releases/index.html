@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Releases · {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+  <section class="space-y-6">
+    <header>
+      <h1 class="text-2xl font-semibold">Releases</h1>
+      <p class="text-muted text-sm">What's already out in things you track and haven't watched.</p>
+    </header>
+
+    {% include "releases/_feed.html" %}
+  </section>
+{% endblock %}

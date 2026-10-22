@@ -1,0 +1,25 @@
+{
+  "id": 3624,
+  "name": "Season 1",
+  "overview": "Winter is coming.",
+  "poster_path": "/got_s1.jpg",
+  "air_date": "2011-04-17",
+  "episodes": [
+    {
+      "episode_number": 1,
+      "name": "Winter Is Coming",
+      "overview": "Ned considers Robert's offer.",
+      "still_path": "/s1e1.jpg",
+      "air_date": "2011-04-17",
+      "runtime": 62
+    },
+    {
+      "episode_number": 2,
+      "name": "The Kingsroad",
+      "overview": "The Starts say goodbye.",
+      "still_path": "/s1e2.jpg",
+      "air_date": "2011-04-24",
+      "runtime": 56
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{% if error %}
+  <p class="px-4 py-3 text-[12px] text-accent">Open Library search failed. Try again.</p>
+{% elif query|length < 2 %}
+{% elif results %}
+  <div class="divide-y divide-line">
+    {% for hit in results %}
+      <div id="book-search-{{ hit.media_id }}" class="flex items-center gap-3 px-3 py-2.5">
+        {% if hit.image %}<img src="{{ hit.image }}" alt="" class="k-cover-sm h-12 w-8 object-cover">{% else %}<span class="k-cover-sm k-poster-ph h-12 w-8 bg-track"></span>{% endif %}
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-[12px] font-semibold text-ink">{{ hit.title }}</p>
+          <p class="mt-1 font-mono text-[9px] text-dim">{% if hit.year %}{{ hit.year }} · {% endif %}{{ hit.media_id }}</p>
+        </div>
+        <form method="post" action="{% url 'tracking:book_add' %}"
+              hx-post="{% url 'tracking:book_add' %}" hx-target="#book-search-{{ hit.media_id }}" hx-swap="outerHTML">
+          {% csrf_token %}<input type="hidden" name="olid" value="{{ hit.media_id }}">
+          <button type="submit" class="k-primary-action !px-3 !py-1.5 text-[11px]">Add</button>
+        </form>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="px-4 py-3 text-[12px] text-dim">No Open Library results for “{{ query }}”.</p>
+{% endif %}

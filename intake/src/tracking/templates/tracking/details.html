@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ metadata.title }} · {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+  <article class="grid md:grid-cols-[240px_1fr] gap-6 p-7">
+    <div>
+      {% if metadata.image %}
+        <img src="{{ metadata.image }}" alt="" class="w-full rounded-lg border border-line">
+      {% else %}
+        <div class="w-full aspect-[2/3] bg-active rounded-lg flex items-center justify-center text-muted">no cover</div>
+      {% endif %}
+    </div>
+
+    <div class="space-y-4">
+      <header>
+        <h1 class="text-2xl font-semibold">{{ metadata.title }}</h1>
+        <p class="text-muted text-sm">
+          {{ metadata.get_media_type_display|default:metadata.media_type }}
+          {% if metadata.release_date %}· {{ metadata.release_date|date:"Y" }}{% endif %}
+          {% if metadata.runtime %}· {{ metadata.runtime }} min{% endif %}
+        </p>
+      </header>
+
+      {% if metadata.genres %}
+        <p class="text-sm text-muted">{{ metadata.genres|join:" · " }}</p>
+      {% endif %}
+
+      <p class="text-ink">{{ metadata.synopsis }}</p>
+
+      <section id="track-status" class="bg-surface border border-line rounded-lg p-4">
+        {% include "tracking/_track_status.html" %}
+      </section>
+
+      <section class="bg-surface border border-line rounded-lg p-4">
+        <h2 class="text-sm font-semibold mb-2">Update tracking</h2>
+        <form
+          method="post"
+          action="{% url 'tracking:track' metadata.source metadata.media_type metadata.media_id %}"
+          hx-post="{% url 'tracking:track' metadata.source metadata.media_type metadata.media_id %}"
+          hx-target="#track-status"
+          hx-swap="innerHTML"
+          class="grid grid-cols-2 gap-3 text-sm">
+          {% csrf_token %}
+
+          <label class="col-span-2">
+            <span class="text-muted block mb-1">Status</span>
+            <select name="status" class="w-full">
+              <option value="">— no change —</option>
+              <option value="planning">Planning</option>
+              <option value="in_progress">In progress</option>
+              <option value="completed">Completed</option>
+              <option value="paused">Paused</option>
+              <option value="dropped">Dropped</option>
+            </select>
+          </label>
+
+          <label>
+            <span class="text-muted block mb-1">Score (1–10)</span>
+            <input type="number" name="score" min="1" max="10" class="w-full">
+          </label>
+
+          <label>
+            <span class="text-muted block mb-1">Progress</span>
+            <input type="number" name="progress" min="0" class="w-full">
+          </label>
+
+          <label>
+            <span class="text-muted block mb-1">Start date</span>
+            <input type="date" name="start_date" class="w-full">
+          </label>
+
+          <label>
+            <span class="text-muted block mb-1">End date</span>
+            <input type="date" name="end_date" class="w-full">
+          </label>
+
+          <div class="col-span-2 flex gap-2">
+            <button type="submit" class="k-primary-action">Save</button>
+            {% if tracking and tracking.status == "completed" %}
+              <button
+                type="button"
+                hx-post="{% url 'tracking:watched_again' metadata.source metadata.media_type metadata.media_id %}"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                hx-target="#track-status"
+                hx-swap="innerHTML"
+                class="bg-active">
+                Watched again
+              </button>
+            {% endif %}
+          </div>
+        </form>
+      </section>
+    </div>
+  </article>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% load static %}<!doctype html>
+<html lang="en"
+      x-data="{ theme: localStorage.getItem('intake-theme') || 'light' }"
+      x-init="$watch('theme', v => { localStorage.setItem('intake-theme', v); document.documentElement.classList.toggle('dark', v === 'dark') })"
+      :class="theme === 'dark' ? 'dark' : ''">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ APP_NAME }}{% endblock %}</title>
+
+  <link rel="icon" type="image/svg+xml" href="{% static 'brand/favicon.svg' %}">
+  <link rel="apple-touch-icon" href="{% static 'brand/intake-mark.svg' %}">
+
+  <!-- Set the class before first paint so there is no light flash. -->
+  <script>if (localStorage.getItem('intake-theme') === 'dark') document.documentElement.classList.add('dark');</script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+
+  <script src="{% static 'js/htmx.min.js' %}" defer></script>
+  <script src="{% static 'js/alpine.min.js' %}" defer></script>
+  {% block head_extra %}{% endblock %}
+</head>
+<body class="min-h-screen bg-bg font-sans text-ink antialiased"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+
+  {% if user.is_authenticated %}
+    <div class="flex h-screen overflow-hidden">
+      {% include "partials/_sidebar.html" %}
+      <main class="min-w-0 flex-1 overflow-y-auto">
+        <div class="k-page">{% block content %}{% endblock %}</div>
+      </main>
+    </div>
+  {% else %}
+    <main>{% block content_anon %}{% endblock %}</main>
+  {% endif %}
+
+  <div class="pointer-events-none fixed bottom-5 left-1/2 z-50 -translate-x-1/2"
+       x-data="{ items: [] }"
+       @toast.window="items.push({ id: Date.now(), msg: $event.detail.msg });
+                      setTimeout(() => items.shift(), 3200)">
+    <template x-for="t in items" :key="t.id">
+      <div class="pointer-events-auto mt-2 rounded-lg bg-btn px-4 py-2.5 font-sans text-[13px] font-medium text-btnfg shadow-lg"
+           x-transition.opacity.duration.150ms x-text="t.msg"></div>
+    </template>
+  </div>
+
+  {% include "partials/_toasts.html" %}
+  {% block body_extra %}{% endblock %}
+</body>
+</html>

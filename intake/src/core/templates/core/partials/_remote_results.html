@@ -1,0 +1,65 @@
+{% if error %}
+  <div class="px-7 pt-4 pb-2">
+    <p class="font-sans text-[13px] text-danger">TMDB search failed: {{ error }}</p>
+  </div>
+{% endif %}
+
+{% comment %}
+  A pasted numeric TMDB ID resolved directly — shown first, above whatever
+  the text search returned.
+{% endcomment %}
+{% if id_hit %}
+  <div class="px-7 pt-4 pb-2">
+    <p class="font-sans text-[13px] text-dim">
+      TMDB ID {{ query }} — {{ id_hit.title }} ({{ id_hit.media_type }}{% if id_hit.year %}, {{ id_hit.year }}{% endif %})
+    </p>
+    <div class="k-shelf mt-3">
+      <div>
+        <div class="k-poster-lg">
+          {% if id_hit.image %}
+            <img src="{{ id_hit.image }}" alt="">
+          {% else %}
+            <div class="k-poster-ph size-full"></div>
+          {% endif %}
+        </div>
+        <p class="mt-2 truncate font-sans text-[13px] font-semibold text-ink" title="{{ id_hit.title }}">{{ id_hit.title }}</p>
+        <p class="mt-[3px] font-mono text-[10.5px] font-medium text-dim capitalize">
+          {{ id_hit.media_type }}{% if id_hit.year %} · {{ id_hit.year }}{% endif %}
+        </p>
+        {% include "tracking/partials/_remote_add_button.html" with hit=id_hit %}
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+{% if hits %}
+  <div class="px-7 pt-4 pb-2">
+    <p class="font-sans text-[13px] text-dim">
+      {{ hits|length }} result{{ hits|length|pluralize }} on TMDB — not in your library yet{% if hidden_count %} · {{ hidden_count }} hidden by the 2000+ filter{% endif %}
+    </p>
+    <div class="k-shelf mt-3">
+      {% for hit in hits %}
+        <div>
+          <div class="k-poster-lg">
+            {% if hit.image %}
+              <img src="{{ hit.image }}" alt="">
+            {% else %}
+              <div class="k-poster-ph size-full"></div>
+            {% endif %}
+          </div>
+          <p class="mt-2 truncate font-sans text-[13px] font-semibold text-ink" title="{{ hit.title }}">{{ hit.title }}</p>
+          <p class="mt-[3px] font-mono text-[10.5px] font-medium text-dim capitalize">
+            {{ hit.media_type }}{% if hit.year %} · {{ hit.year }}{% endif %}
+          </p>
+          {% include "tracking/partials/_remote_add_button.html" with hit=hit %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% elif query and not id_hit and not error %}
+  <div class="px-7 pt-4 pb-2">
+    <p class="font-sans text-[13px] text-dim">
+      Nothing on TMDB for "{{ query }}"{% if not year_filter_off %} — or it's older than 2000; untick "2000+" to widen{% endif %}.
+    </p>
+  </div>
+{% endif %}

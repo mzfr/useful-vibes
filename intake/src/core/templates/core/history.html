@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}History · {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+  <header class="flex items-end justify-between border-b border-line px-[30px] pb-[18px] pt-[26px]">
+    <div>
+      <h1 class="text-[30px] font-bold leading-none tracking-[-0.03em] text-ink">History</h1>
+      <p class="mt-[7px] text-[13px] text-dim">
+        {{ range_label }} · {{ episode_count }} completion{{ episode_count|pluralize }} · {{ runtime_label }}
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <div class="flex overflow-hidden rounded-[7px] border border-line2 text-[12.5px] font-medium">
+        {% for v in views %}
+          <a href="{{ v.url }}"
+             class="px-3 py-2 whitespace-nowrap {% if not forloop.first %}border-l border-line2{% endif %}
+                    {% if v.active %}bg-btn text-btnfg{% else %}text-muted hover:text-ink{% endif %}">{{ v.label }}</a>
+        {% endfor %}
+      </div>
+
+      <a href="?view={{ view }}&start={{ prev_start|date:'Y-m-d' }}" title="Previous {{ view }}" aria-label="Previous {{ view }}"
+         class="rounded-[7px] border border-line2 px-3 py-2 text-[12.5px] font-medium text-ink hover:border-ink">‹</a>
+      <a href="?view={{ view }}&start={{ next_start|date:'Y-m-d' }}" title="Next {{ view }}" aria-label="Next {{ view }}"
+         class="rounded-[7px] border border-line2 px-3 py-2 text-[12.5px] font-medium text-ink hover:border-ink">›</a>
+
+      {% if not showing_today %}
+        <a href="{% url 'core:history' %}?view={{ view }}"
+           class="rounded-[7px] border border-line2 px-3 py-2 text-[12.5px] font-medium whitespace-nowrap text-muted hover:text-ink">Today</a>
+      {% endif %}
+
+      <div class="relative" x-data="{ open: false, year: {{ year }} }"
+           @click.outside="open = false" @keydown.escape.window="open = false">
+
+        <button type="button" @click="open = !open" :aria-expanded="open"
+                class="rounded-[7px] bg-btn px-[15px] py-2.5 text-[12.5px] font-semibold whitespace-nowrap text-btnfg hover:opacity-90 cursor-pointer border-none">
+          {{ month_label }} {{ year }} ▾
+        </button>
+
+        <div x-show="open" x-transition.opacity.duration.120ms x-cloak
+             class="absolute right-0 top-full z-20 mt-2 w-[272px] rounded-[10px] border border-line2 bg-surface p-3.5 shadow-[0_12px_30px_rgba(0,0,0,.14)]">
+
+          <div class="mb-3 flex items-center justify-between">
+            <button type="button" @click="year--" class="px-1 text-[12px] font-medium text-muted hover:text-ink cursor-pointer bg-transparent border-none">‹</button>
+            <span class="text-[14px] font-semibold text-ink" x-text="year">{{ year }}</span>
+            <button type="button" @click="year++" class="px-1 text-[12px] font-medium text-muted hover:text-ink cursor-pointer bg-transparent border-none">›</button>
+          </div>
+
+          <div class="grid grid-cols-4 gap-1.5">
+            {% for m in month_options %}
+              <a href="?view=month&month={{ m.number }}&year={{ year }}" :href="`?view=month&month={{ m.number }}&year=${year}`"
+                 class="rounded-md bg-bg py-2 text-center text-[12.5px] font-medium no-underline
+                        {% if m.active %}text-ink ring-1 ring-ink{% else %}text-muted hover:text-ink{% endif %}">{{ m.label }}</a>
+            {% endfor %}
+          </div>
+
+          <form method="get" class="mt-3 flex items-center gap-2 border-t border-line pt-3">
+            <input type="hidden" name="view" value="{{ view }}">
+            <input type="date" name="start" value="{{ week_start|date:'Y-m-d' }}"
+                   class="min-w-0 flex-1 rounded-md bg-bg px-2.5 py-2 font-mono text-[12px] font-medium text-muted">
+            <button type="submit" class="rounded-md bg-btn px-3 py-2 text-[12px] font-semibold text-btnfg hover:opacity-90 cursor-pointer border-none">Go</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="border-b border-line px-[30px] py-4">
+    <div class="flex items-baseline justify-between mb-2">
+      <span class="font-mono text-[11px] font-medium tracking-[0.16em] text-faint">{{ strip_year }}</span>
+      <span class="font-mono text-[11px] text-dim">{{ year_count }} completion{{ year_count|pluralize }} this year</span>
+    </div>
+    <div class="flex gap-[3px]">
+      {% for w in year_weeks %}
+        <a href="?view=week&start={{ w.start|date:'Y-m-d' }}"
+           title="{{ w.label }}: {{ w.count }} completion{{ w.count|pluralize }}"
+           style="background: var(--heat-{{ w.level }})"
+           class="h-4 flex-1 rounded-sm {% if w.is_current %}ring-1 ring-accent{% endif %}"></a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="k-history-grid grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-7 px-[30px] pb-[30px] pt-5">
+    {% for day in days %}
+      <div class="rounded-[10px] bg-surface {% if day.is_today %}k-today{% endif %} {% if view == 'month' and not day.in_month %}opacity-40{% endif %} min-h-[130px] px-2.5 py-2.5">
+        <div class="mb-2 flex items-baseline justify-between">
+          <span class="font-mono text-[11px] font-medium tracking-[0.14em] {% if day.is_today %}text-accent{% else %}text-faint{% endif %}">
+            {{ day.date|date:"D"|upper }}
+          </span>
+          <span class="font-mono text-[12px] {% if day.is_today %}font-semibold text-ink{% else %}text-dim{% endif %}">
+            {{ day.date|date:"j" }}
+          </span>
+        </div>
+
+        {% if day.watches %}
+          {% if view == 'month' %}
+            <details class="k-history-more" open>
+              <summary>
+                <span>{{ day.completion_count }} completion{{ day.completion_count|pluralize }}</span>
+                <span class="sr-only"> for {{ day.date|date:"l, j F Y" }}</span>
+                <span class="k-history-density" aria-hidden="true">
+                  <span style="width: {% widthratio day.completion_count 12 100 %}%"></span>
+                </span>
+              </summary>
+              <div class="k-history-overflow" tabindex="0" role="region"
+                   aria-label="Completions for {{ day.date|date:'l, j F Y' }}">
+                <div class="k-history-entries">
+                  {% for w in day.watches %}
+                    {% include "core/partials/_history_card.html" with w=w %}
+                  {% endfor %}
+                </div>
+              </div>
+            </details>
+          {% else %}
+            <div class="k-history-activity">
+              <p>{{ day.completion_count }} completion{{ day.completion_count|pluralize }}</p>
+              <div class="k-history-density" aria-hidden="true">
+                <span style="width: {% widthratio day.completion_count 12 100 %}%"></span>
+              </div>
+            </div>
+            <div class="k-history-entries">
+              {% for w in day.watches %}
+                {% include "core/partials/_history_card.html" with w=w %}
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% else %}
+          <p class="font-sans text-[11.5px] text-faint">—</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

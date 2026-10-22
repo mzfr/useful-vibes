@@ -1,0 +1,14 @@
+{
+  "numFound": 1,
+  "start": 0,
+  "docs": [
+    {
+      "key": "/works/OL27448W",
+      "title": "The Lord of the Rings",
+      "author_name": ["J.R.R. Tolkien"],
+      "first_publish_year": 1954,
+      "cover_i": 14625765,
+      "edition_key": ["OL26354864M"]
+    }
+  ]
+}

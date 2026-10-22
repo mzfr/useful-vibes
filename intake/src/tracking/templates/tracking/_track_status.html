@@ -1,0 +1,17 @@
+{% if tracking %}
+  <p class="text-sm">
+    <span class="text-muted">Status:</span>
+    <span class="text-ink font-medium">{{ tracking.get_status_display }}</span>
+    {% if tracking.score %} · <span class="text-muted">Score:</span> {{ tracking.score }}/10{% endif %}
+    {% if tracking.progress %} · <span class="text-muted">Progress:</span> {{ tracking.progress }}{% if item.max_progress %}/{{ item.max_progress }}{% endif %}{% endif %}
+    {% if tracking.repeats %} · <span class="text-muted">Repeats:</span> {{ tracking.repeats }}{% endif %}
+  </p>
+  {% if tracking.start_date or tracking.end_date %}
+    <p class="text-xs text-muted mt-1">
+      {% if tracking.start_date %}Started {{ tracking.start_date|date:"Y-m-d" }}{% endif %}
+      {% if tracking.end_date %} · Finished {{ tracking.end_date|date:"Y-m-d" }}{% endif %}
+    </p>
+  {% endif %}
+{% else %}
+  <p class="text-muted text-sm">Not tracked yet.</p>
+{% endif %}

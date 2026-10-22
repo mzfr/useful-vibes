@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ APP_NAME }} — Up Next{% endblock %}
+
+{% block content %}
+  <div class="flex items-center gap-2.5 border-b border-line px-7 py-[18px]">
+    <form action="{% url 'core:home' %}" method="get" class="flex flex-1 items-center gap-2.5">
+      <input type="search" name="q" value="{{ query|default:'' }}"
+             placeholder="Search movies &amp; shows…"
+             hx-get="{% url 'core:home' %}"
+             hx-include="closest form"
+             hx-trigger="keyup changed delay:300ms, search"
+             hx-target="#search-results"
+             hx-swap="outerHTML"
+             hx-indicator="#search-spinner">
+      <select name="type"
+              hx-get="{% url 'core:home' %}"
+              hx-include="closest form"
+              hx-target="#search-results"
+              hx-swap="outerHTML">
+        {% for value, label in media_types %}
+          <option value="{{ value }}" {% if value == media_type %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <label class="flex cursor-pointer items-center gap-1.5 whitespace-nowrap font-sans text-[12px] text-muted select-none">
+        <input type="hidden" name="year_filter" value="off">
+        <input type="checkbox" name="year_filter" value="on"
+               class="size-3.5 accent-[var(--app-ink)] cursor-pointer"
+               hx-get="{% url 'core:home' %}"
+               hx-include="closest form"
+               hx-target="#search-results"
+               hx-swap="outerHTML"
+               {% if not year_filter_off %}checked{% endif %}>
+        2000+
+      </label>
+    </form>
+  </div>
+
+  {% include "core/partials/_search_results.html" %}
+
+  <div class="flex items-end justify-between px-7 pb-2.5 pt-6">
+    <div>
+      <h1>Up next</h1>
+      <p class="mt-[7px] font-sans text-[13px] text-dim">
+        {{ episode_count }} episode{{ episode_count|pluralize }} across {{ show_rows|length }} show{{ show_rows|length|pluralize }}
+      </p>
+    </div>
+  </div>
+
+  <div id="up-next-grid" class="k-grid px-7 pb-1.5 pt-[18px]">
+    {% include "tracking/_up_next.html" %}
+  </div>
+
+  {% include "tracking/_history.html" %}
+{% endblock %}

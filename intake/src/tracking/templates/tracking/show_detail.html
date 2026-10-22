@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ show.title }} · {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+  <header class="flex gap-[30px] border-b border-line px-[30px] pb-[26px] pt-[30px]">
+    <div class="h-60 w-40 shrink-0 overflow-hidden rounded-lg bg-track">
+      {% if show.image %}
+        <img src="{{ show.image }}" alt="" class="size-full object-cover">
+      {% else %}
+        <div class="k-poster-ph size-full" style="background-color: #4a3d70"></div>
+      {% endif %}
+    </div>
+
+    <div class="min-w-0 flex-1">
+      <p class="font-mono text-[11px] font-medium tracking-[0.16em] text-faint">
+        TV{% if show.release_date %} · {{ show.release_date|date:"Y" }}{% endif %}{% if show_network %} · {{ show_network|upper }}{% endif %}{% if show_status %} · {{ show_status|upper }}{% endif %}
+      </p>
+
+      <h1 class="mt-2.5 text-[38px] font-bold leading-none tracking-[-0.035em] text-ink">{{ show.title }}</h1>
+
+      <p class="mt-3.5 max-w-[660px] text-[14.5px] leading-[1.55] text-muted text-pretty">{{ show.synopsis }}</p>
+
+      <div class="mt-[22px] flex items-center gap-2.5">
+        {% if next_episode %}
+          <button type="button"
+                  hx-post="{% url 'tracking:mark_show_next_watched' show.media_id %}"
+                  hx-target="#show-body" hx-swap="outerHTML"
+                  class="rounded-lg bg-btn px-5 py-3 text-[13.5px] font-semibold whitespace-nowrap text-btnfg hover:opacity-90 cursor-pointer border-none">
+            {% if tracking %}Mark {{ next_episode.code }} watched{% else %}Start watching · {{ next_episode.code }}{% endif %}
+          </button>
+        {% endif %}
+
+        <button type="button"
+                hx-post="{% url 'tracking:toggle_watchlist' show.media_id %}"
+                hx-target="#show-body" hx-swap="outerHTML"
+                class="rounded-lg border border-line2 px-4 py-3 text-[13.5px] font-medium whitespace-nowrap text-ink hover:border-ink cursor-pointer bg-transparent">
+          {% if tracking and tracking.status == "planning" %}On watchlist{% else %}Watchlist{% endif %}
+        </button>
+
+        {% include "core/partials/_favorite_button.html" with item=show is_favorite=is_favorite %}
+
+        <div class="ml-auto flex items-center gap-3" id="visibility-toggles">
+          {% include "tracking/partials/_visibility_toggles.html" %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {% include "tracking/partials/_show_body.html" %}
+{% endblock %}
