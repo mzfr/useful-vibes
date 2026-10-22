@@ -1,0 +1,1 @@
+export default {base:'/excalidraw/', build:{rollupOptions:{output:{entryFileNames:'adapter.js', assetFileNames: info => info.name?.endsWith('.css') ? 'adapter.css' : 'assets/[name]-[hash][extname]'}}}};
