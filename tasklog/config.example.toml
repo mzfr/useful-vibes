@@ -1,0 +1,4 @@
+log_path = "~/.config/tasklog/log.md"
+date_format = "DD/MM/YYYY"
+note_indent = 6
+scan_window_lines = 5000
