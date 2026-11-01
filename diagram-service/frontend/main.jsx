@@ -30,7 +30,11 @@ window.createExcalidraw = async function(container, {theme, onChange}) {
       await document.fonts.ready;
       const blob = await exportToBlob({elements:api.getSceneElements(), files:api.getFiles(),
         appState:{...api.getAppState(), exportBackground:true, exportWithDarkMode:value === 'dark'},
-        maxWidthOrHeight:4000});
+        getDimensions:(width, height) => {
+          const scale = Math.min(3, 8192 / width, 8192 / height,
+            Math.sqrt(16_000_000 / (width * height)));
+          return {width:Math.floor(width * scale), height:Math.floor(height * scale), scale};
+        }});
       return await new Promise((resolve,reject) => { const reader = new FileReader(); reader.onload=()=>resolve(reader.result); reader.onerror=()=>reject(reader.error); reader.readAsDataURL(blob); });
     }
   };

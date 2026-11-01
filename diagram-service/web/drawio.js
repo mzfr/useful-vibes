@@ -58,7 +58,7 @@ function exportScale(bounds) {
 	// Canvas still allocates at least one pixel for that dimension.
 	const exportWidth = Math.max(1, width);
 	const exportHeight = Math.max(1, height);
-	let scale = Math.min(1, MAX_PNG_EDGE / exportWidth, MAX_PNG_EDGE / exportHeight,
+	let scale = Math.min(3, MAX_PNG_EDGE / exportWidth, MAX_PNG_EDGE / exportHeight,
 		Math.sqrt(MAX_PNG_PIXELS / (exportWidth * exportHeight)));
 
 	while (Math.ceil(exportWidth * scale) > MAX_PNG_EDGE ||
